@@ -1,6 +1,5 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
-const Movie = require('./Movie');
 
 const userSchema = new Schema(
     {
@@ -25,7 +24,7 @@ const userSchema = new Schema(
                 ref: 'User',
             },
         ],
-        likes: [
+        likedMovies: [
             {
                 type: Schema.Types.ObjectId,
                 ref: 'Movie',
@@ -34,7 +33,7 @@ const userSchema = new Schema(
                 }
             },
         ],
-        dislikes: [
+        dislikedMovies: [
             {
                 type: Schema.Types.ObjectId,
                 ref: 'Movie',
@@ -43,8 +42,6 @@ const userSchema = new Schema(
                 }
             },
         ],
-        // set likedMovies to be an array of data that adheres to the MovieSchema
-        likedMovies: [Movie],
     },
     {
         toJSON: {
@@ -68,9 +65,13 @@ userSchema.methods.isCorrectPassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-// when we query a user, we'll also get another field called `movieCount` with the number of liked movies we have
-userSchema.virtual('movieCount').get(function () {
+// when we query a user, we'll also get another field called `likedMovieCount` with the number of liked movies, and `dislikedMovieCount` with the number of disliked movies
+userSchema.virtual('likedMovieCount').get(function () {
     return this.likedMovies.length;
+});
+
+userSchema.virtual('dislikedMovieCount').get(function () {
+    return this.dislikedMovies.length;
 });
 
 const User = model('User', userSchema);
