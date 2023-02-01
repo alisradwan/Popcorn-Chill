@@ -7,10 +7,6 @@
     "start": "node server.js",
     "watch": "nodemon server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alisradwan/Popcorn-Chill.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -26,9 +22,5 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.3"
-  },
-  "bugs": {
-    "url": "https://github.com/alisradwan/Popcorn-Chill/issues"
-  },
-  "homepage": "https://github.com/alisradwan/Popcorn-Chill#readme"
+  }
 }
