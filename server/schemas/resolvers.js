@@ -1,7 +1,6 @@
 const { User, Movie } = require('../models');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } = require('apollo-server-express');
-const { ContextualizedTypeStats } = require('apollo-reporting-protobuf');
 
 const resolvers = {
     Query: {

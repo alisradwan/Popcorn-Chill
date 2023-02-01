@@ -30,7 +30,7 @@ const movieSchema = new Schema(
             type: String,
             required: true
         },
-        popularity: {
+        rating: {
             type: Number
         },
         vote_count: {
