@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Container } from "react-bootstrap";
 import MovieBox from "../components/MovieBox";
-import {getPopularMovies} from "../utils/tmdb";
+import { getPopularMovies } from "../utils/tmdb";
 import { useMovieContext } from "../utils/MovieContext";
 import { ADD_MOVIES, UPDATE_MOVIE_PREF, UPDATE_MOVIES } from '../utils/actions';
 import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from '../utils/mutations';
@@ -10,7 +11,7 @@ import Auth from '../utils/auth';
 import { idbPromise, findIndexByAttr } from "../utils/helpers";
 import { dataCleaner } from "../utils/dataCleaner";
 
-function Homepage() {
+const Homepage = () => {
   const [state, dispatch] = useMovieContext();
   const { movies, likedMovies, dislikedMovies } = state
   const [movieIndex, setMovieIndex] = useState('');
@@ -160,28 +161,19 @@ function Homepage() {
     })
     .catch(err => console.error(err));
   };
-
+console.log(movies + "****ALL MOVIES")
   return (
-    <div>
-      {movies.length > 0 
-      ? (
-        <div className="container">
-          <div className="grid">
-            {movies.map((movieReq) => (
-              <MovieBox 
-                key={movieReq.id} {...movieReq}
-                movie={movies[movieIndex]}
-                likeMovieHandler={handleLikeMovie}
-                dislikeMovieHandler={handleDislikeMovie}
-              />
-            ))}
-          </div>
-        </div>
-      ) 
-      : (
-        <h2>Sorry !! No Movies Found</h2>
-      )}
-    </div>
+    <Container>
+      {loading ? <h2>Loading....</h2> : null}
+      {movies.length
+      ? <MovieBox
+            movie={movies[movieIndex]}
+            likeMovieHandler={handleLikeMovie}
+            dislikeMovieHandler={handleDislikeMovie}
+        />
+      : null
+      }
+    </Container>
   );
 }
 

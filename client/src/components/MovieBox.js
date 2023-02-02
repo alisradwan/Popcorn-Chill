@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useMovieContext } from "../utils/MovieContext";
 import Auth from '../utils/auth';
 
-const MovieBox = (props) => {
+function MovieBox(props) {
   const [state, ] = useMovieContext();
   const { likedMovies, dislikedMovies } = state;
   const {
@@ -74,6 +74,5 @@ const MovieBox = (props) => {
       </Card>
     : null
   )
-
 };
 export default MovieBox;          
