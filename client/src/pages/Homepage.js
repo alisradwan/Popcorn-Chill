@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import MovieBox from "../components/MovieBox";
-import tmdb from "../Api/tmdb";
+import {getPopularMovies} from "../utils/tmdb";
 import { useMovieContext } from "../utils/MovieContext";
 import { ADD_MOVIES, UPDATE_MOVIE_PREF, UPDATE_MOVIES } from '../utils/actions';
 import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from '../utils/mutations';
 import { GET_USER } from '../utils/queries';
 import { useMutation, useQuery } from "@apollo/client";
 import Auth from '../utils/auth';
+import { idbPromise, findIndexByAttr } from "../utils/helpers";
+import { dataCleaner } from "../utils/dataCleaner";
 
 function Homepage() {
   const [state, dispatch] = useMovieContext();
@@ -17,7 +19,7 @@ function Homepage() {
   const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
   const [likeMovie] = useMutation(LIKE_MOVIE);
   const { loading, data } = useQuery(GET_USER);
-
+  console.log ("SEEEEEEEE THISSSSS");
   useEffect(() => {
       if (!likedMovies.length && !dislikedMovies.length) {
         if (data && data.me) {
@@ -66,6 +68,49 @@ function Homepage() {
       }
     }
   }, [setMovieIndex, dislikedMovies, likedMovies, movies, movieIndex]);
+
+  useEffect(() => {
+    if (!movies.length) {
+      try {
+        console.log ("fetching TMDB API to get popular movies");
+        getPopularMovies('week').then(res => {
+          if (res.ok) {
+            res.json().then(async ({ results }) => {
+              const movieData = await dataCleaner(results);
+              console.log (movieData + "****DATA");
+              movieData.forEach(async movie => {
+                const result = await addMovie({ variables: { input: movie } })
+                if (addMovieError) {
+                  throw new Error("Couldn't add this movie");
+                }
+                const { data: newMovieData } = await result;
+                const { addMovie: newMovie } = await newMovieData;
+                dispatch({
+                  type: ADD_MOVIES,
+                  movie: newMovie
+                })
+                idbPromise('movies', 'put', newMovie);
+              })
+            })
+          }
+          else {
+            throw new Error ("Couldn't load popular movies");
+          }
+        })
+      }
+      catch {
+        console.log("Failed to fetch data from TMDB, using IDB data");
+        idbPromise("movies", "get").then(movies => {
+          if (movies.length) {
+            dispatch({
+              type: UPDATE_MOVIES,
+              movies
+            })
+          }
+        })
+      }  
+    }
+  }, [movies, data, dispatch, loading, addMovie, addMovieError]);
 
   const handleLikeMovie = (likedMovie) => {
     likeMovie({
