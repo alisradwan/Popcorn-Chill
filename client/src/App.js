@@ -5,8 +5,8 @@ import React from 'react';
 import { setContext } from '@apollo/client/link/context';
 
 import Navbar from "./components/Navbar";
-import TopMovies from "./pages/topMovies";
-import TrendingMovies from "./pages/trendingMovies";
+import Dashboard from "./pages/Dashboard";
+import Homepage from "./pages/Homepage";
 
 const httpLink = createHttpLink({
   uri: '/graphql',
@@ -36,8 +36,8 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/" element={<TrendingMovies />} />
-          <Route path="/SearchMovies" element={<TopMovies />} />
+          <Route path="/" element={<Homepage />} />
+          <Route path="/SearchMovies" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
    </ApolloProvider>

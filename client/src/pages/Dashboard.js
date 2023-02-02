@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import MovieBox from "./MovieBox";
-import SearchMovie from "./Searchmovie";
+import MovieBox from "../components/MovieBox";
+import SearchMovie from "../components/Searchmovie";
 
 function TopMovies() {
   const [movies, setMovies] = useState([]);
