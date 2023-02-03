@@ -7,6 +7,7 @@ export const ADD_USER = gql`
             user {
                 _id
                 username
+                email
             }
         }
     }
@@ -29,6 +30,7 @@ export const LOGIN_USER = gql`
                     rating
                     voteCount
                     poster
+                    trailer
                     likedUsers {
                         _id
                         username
@@ -43,6 +45,7 @@ export const LOGIN_USER = gql`
                     rating
                     voteCount
                     poster
+                    trailer
                     likedUsers {
                         _id
                         username
@@ -64,6 +67,7 @@ export const ADD_MOVIE = gql`
             rating
             voteCount
             poster
+            trailer
             likedUsers {
                 _id
                 username
@@ -84,6 +88,7 @@ export const LIKE_MOVIE = gql`
                 rating
                 voteCount
                 poster
+                trailer
                 likedUsers {
                     _id
                     username
@@ -98,6 +103,7 @@ export const LIKE_MOVIE = gql`
                 rating
                 voteCount
                 poster
+                trailer
                 likedUsers {
                     _id
                     username
@@ -119,6 +125,7 @@ export const DISLIKE_MOVIE = gql`
                 rating
                 voteCount
                 poster
+                trailer
                 likedUsers {
                     _id
                     username
@@ -133,6 +140,7 @@ export const DISLIKE_MOVIE = gql`
                 rating
                 voteCount
                 poster
+                trailer
                 likedUsers {
                     _id
                     username

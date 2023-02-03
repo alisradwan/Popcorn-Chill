@@ -18,6 +18,7 @@ export const GET_USER = gql`
         overview
         releaseDate
         poster
+        trailer
         likedUsers {
           _id
           username
@@ -36,6 +37,7 @@ export const GET_USER = gql`
         overview
         releaseDate
         poster
+        trailer
         likedUsers {
           _id
           username

@@ -1,51 +1,55 @@
-import "./App.css";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import React from 'react';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloProvider } from '@apollo/react-hooks';
+import ApolloClient from 'apollo-boost';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
-import { MovieProvider } from "./utils/MovieContext";
+// import custom components
+import Navbar from './components/Navbar';
+import Homepage from './pages/Homepage';
+import SearchMovies from './pages/SearchMovies';
+import SavedMovies from './pages/SavedMovies';
+import Footer from './components/Footer';
 
-import Navbar from "./components/Navbar";
-import Dashboard from "./pages/Dashboard";
-import Homepage from "./pages/Homepage";
-import Profile from "./pages/Profile";
+// import GlobalState Provider
+import { FantinderProvider } from "./utils/GlobalState";
 
-const httpLink = createHttpLink({
-  uri: '/graphql',
-});
-
-const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('id_token');
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : '',
-    },
-  };
-});
+// stylesheets
+import './App.scss';
 
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+    request: operation => {
+        const token = localStorage.getItem('id_token');
+
+        operation.setContext({
+            headers: {
+                authorization: token ? `Bearer ${token}` : ''
+            }
+        })
+    },
+    uri: '/graphql'
 });
 
 function App() {
-  return (
-    <ApolloProvider client = {client}>
-      <Router>
-        <MovieProvider>
-          <Navbar />
-          <Switch>
-            <Route exact path='/' component={Homepage} />
-            <Route exact path='/dashboard' component={Dashboard} />
-            <Route exact path='/profile' component={Profile} />
-            <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
-          </Switch>
-        </MovieProvider>
-      </Router>
-   </ApolloProvider>
-  );
+    return (
+        <ApolloProvider client={client}>
+            <Router>
+                <FantinderProvider>
+                    <div className="app-container">
+                        <div className="app-content">
+                            <Navbar />
+                            <Switch>
+                                <Route exact path='/' component={Homepage} />
+                                <Route exact path='/search' component={SearchMovies} />
+                                <Route exact path='/saved' component={SavedMovies} />
+                                <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
+                            </Switch>
+                        </div>
+                    </div>
+                    <Footer />
+                </FantinderProvider>
+            </Router>
+        </ApolloProvider>
+    );
 }
 
 export default App;
