@@ -115,3 +115,17 @@ h2 {
   align-items: center;
   justify-content: center;
 }
+
+.ModalCard {
+  width: 30%;
+}
+
+.img {
+  width: 300px;
+}
+
+.lg {
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+}
