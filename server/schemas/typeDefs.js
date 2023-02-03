@@ -7,54 +7,27 @@ const typeDefs = gql`
     }
 
     type Movie {
-        _id: ID!
-        movie_id: Int!
-        poster: String
-        adult: Boolean
-        overview: String!
-        release_date: String
-        genres: [String]
-        title: String!
+        _id: ID
+        externalMovieId: Int
         rating: Float
-        vote_count: Int
-        runtime: Int
+        voteCount: Int
+        title: String
+        overview: String
+        releaseDate: String
+        poster: String
         trailer: String
-        homepage: String
         likedUsers: [User]
         dislikedUsers: [User]
-        comments: [Comment]!
-    }
-
-    type Comment {
-        _id: ID!
-        commentText: String!
-        commentAuthor: String!
-        createdAt: String
     }
 
     type User {
-        _id: ID!
-        username: String!
-        email: String!
+        _id: ID
+        username: String
+        email: String
         friendCount: Int
         friends: [User]
         likedMovies: [Movie]
         dislikedMovies: [Movie]
-    }
-
-    input MovieInput {
-        movie_id: Int
-        poster: String
-        adult: Boolean
-        overview: String!
-        release_date: String
-        genres: [String]
-        title: String!
-        rating: Float
-        vote_count: Int
-        runtime: Int
-        trailer: String
-        homepage: String
     }
 
     type Query {
@@ -65,16 +38,25 @@ const typeDefs = gql`
         user(username: String!): User
     }
 
+    input MovieInput {
+        externalMovieId: Int
+        rating: Float
+        voteCount: Int
+        title: String
+        overview: String
+        releaseDate: String
+        poster: String
+        trailer: String
+    }
+
     type Mutation {
-        addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
+        addUser(username: String!, email: String!, password: String!): Auth
         addFriend(friendId: ID!): User
         addMovie(input: MovieInput!): Movie
         likeMovie(movieId: ID!): User
         dislikeMovie(movieId: ID!): User
-        addComment(movieId: ID!, commentText: String!): Movie
-        removeComment(movieId: ID!, commentId: ID!): Movie
     }
 `;
 
-module.exports = typeDefs;
+module.exports = typeDefs; 

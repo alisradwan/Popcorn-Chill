@@ -6,12 +6,13 @@ const { Provider } = MovieContext;
 
 const MovieProvider = ({ value = [], ...props }) => {
     const [state, dispatch] = useMovieReducer({
-        likedMovies: [],
-        dislikedMovies: [],
-        movies: []
+      likedMovies: [],  // array of movies that were liked
+      dislikedMovies: [],  // array of movies that were disliked
+      movies: []  // array of all movies
     });
-    return <Provider value={[state, dispatch]} {...props} />; 
-};
+    console.log({state}); // comment this in to test!
+    return <Provider value={[state, dispatch]} {...props} />;
+  };
 
 const useMovieContext = () => {
     return useContext(MovieContext);

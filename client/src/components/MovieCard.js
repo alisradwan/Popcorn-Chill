@@ -1,7 +1,7 @@
-import { Accordion, Button, Card, Row, Col, AccordionContext } from "react-bootstrap";
+import { Accordion, Button, Card, Row, Col } from "react-bootstrap";
 import { useAccordionButton } from 'react-bootstrap/AccordionButton';
-
-import React, { useContext } from "react";
+import StarRatings from 'react-star-ratings';
+import React from "react";
 import Auth from '../utils/auth';
 import { useMovieContext } from "../utils/MovieContext";
 
@@ -28,11 +28,10 @@ function MovieCard(props) {
       </button>
     );
   }      
-
   return (
     movie
     ?  <Accordion>
-        <Card className="card text-center bg-secondary mb-3">
+        <Card className="card text-center mb-3">
           <div className="card-body">
             <Card.Img className="card-img-top" src={movie.poster} alt={`Poster ${movie.title}`} variant='top' />
             <div className="card-body">
@@ -42,9 +41,15 @@ function MovieCard(props) {
                     </Card.Title>
                     
                     <Row>
-                        <Col sm={6}>
+                        <Col sm={8}>
                             { movie.rating >= 0
-                            ?   movie.rating
+                            ?  <StarRatings
+                                rating={movie.rating/2}
+                                numberOfStars={5}
+                                name={`${movie._id}-rating`}
+                                starDimension="10px"
+                                starSpacing="1px"
+                              />
                             :   null
                             }
                             <Card.Text className="small">
@@ -62,9 +67,9 @@ function MovieCard(props) {
                             <Card.Text>Plot Summary</Card.Text>
                             <Card.Text className='small'>{movie.overview}</Card.Text>
                             <Card.Text className='small'>Release Date: {movie.releaseDate}</Card.Text>
-                            <Card.Text className='small'>
+                            {/* <Card.Text className='small'>
                                 {`${movie.likedUsers.length} ${movie.likedUsers.length === 1 ? 'user' : 'users'} liked this movie`}
-                            </Card.Text>
+                            </Card.Text> */}
                         </Card.Body>
                     </Accordion.Collapse>
 
