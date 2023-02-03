@@ -7,10 +7,10 @@ import { useAccordionToggle } from 'react-bootstrap/AccordionToggle';
 
 // import utils
 import Auth from '../utils/auth';
-import { useFantinderContext } from "../utils/GlobalState";
+import { useMovieContext } from "../utils/GlobalState";
 
 const MovieCard = (props) => {
-    const [state, ] = useFantinderContext();
+    const [state, ] = useMovieContext();
     const { likedMovies, dislikedMovies } = state;
     const {
         movie,

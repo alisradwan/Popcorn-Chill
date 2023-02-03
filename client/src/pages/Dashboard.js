@@ -10,7 +10,7 @@ import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from '../utils/mutations';
 import { GET_USER } from '../utils/queries';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 // Global State
-import { useFantinderContext } from "../utils/GlobalState";
+import { useMovieContext } from "../utils/GlobalState";
 import { UPDATE_MOVIE_PREFERENCES } from '../utils/actions';
 // IndexedDB
 import { idbPromise } from "../utils/helpers";
@@ -18,7 +18,7 @@ import { findIndexByAttr } from '../utils/helpers'
 
 const SearchMovies = () => {
     // State
-    const [state, dispatch] = useFantinderContext();
+    const [state, dispatch] = useMovieContext();
     const { likedMovies, dislikedMovies } = state
     const [resultsFound, setResultsFound] = useState(true);
     const [searchInput, setSearchInput] = useState('');
@@ -170,7 +170,7 @@ const SearchMovies = () => {
             <Jumbotron fluid className="text-light bg-dark">
                 <Container>
                     <Form onSubmit={(event) => handleFormSubmit(event, searchInput)}>
-                        <Form.Label className="h3">Find your favorite movies</Form.Label>
+                        <Form.Label className="h3">Find your next favorite movies</Form.Label>
                         <Form.Control
                             name='searchInput'
                             value={searchInput}
@@ -194,8 +194,7 @@ const SearchMovies = () => {
                                     return (
                                         <MovieCard
                                             key={movie._id}
-                                            movie={movie}
-                                            
+                                            movie={movie}                                            
                                             likeMovieHandler={handleLikeMovie}
                                             dislikeMovieHandler={handleDislikeMovie}
                                         />

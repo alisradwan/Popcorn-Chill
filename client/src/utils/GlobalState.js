@@ -1,10 +1,10 @@
 import React, { createContext, useContext } from "react";
 import { useMovieReducer } from './reducers';
 
-const FantinderContext = createContext();
-const { Provider } = FantinderContext;
+const MovieContext = createContext();
+const { Provider } = MovieContext;
 
-const FantinderProvider = ({ value = [], ...props }) => {
+const MovieProvider = ({ value = [], ...props }) => {
     const [state, dispatch] = useMovieReducer({
       likedMovies: [],  // array of movies that were liked
       dislikedMovies: [],  // array of movies that were disliked
@@ -14,8 +14,8 @@ const FantinderProvider = ({ value = [], ...props }) => {
     return <Provider value={[state, dispatch]} {...props} />;
   };
 
-const useFantinderContext = () => {
-    return useContext(FantinderContext);
+const useMovieContext = () => {
+    return useContext(MovieContext);
 };
 
-export { FantinderProvider, useFantinderContext };
+export { MovieProvider, useMovieContext };

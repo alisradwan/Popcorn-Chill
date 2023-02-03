@@ -13,18 +13,18 @@ const AppNavbar = () => {
         <>
             <Navbar collapseOnSelect expand="lg" bg="black" variant="dark">
                 <Navbar.Brand as={Link} to='/'>
-                    FANTINDER
+                    POPCORN N CHILL
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls='navbar' />
                 <Navbar.Collapse id='navbar'>
                     <Nav className='ml-auto'>
-                        <Nav.Link as={Link} to='/search'>
+                        <Nav.Link as={Link} to='/Dashboard'>
                             Search For Movies
                         </Nav.Link>
                         {/* if user is logged in show saved movies and logout */}
                         {Auth.loggedIn() ? (
                             <>
-                                <Nav.Link as={Link} to='/saved'>
+                                <Nav.Link as={Link} to='/Profile'>
                                     Saved Movies
                                 </Nav.Link>
                                 <Nav.Link onClick={Auth.logout}>

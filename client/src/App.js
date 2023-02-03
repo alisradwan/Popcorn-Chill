@@ -6,12 +6,12 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 // import custom components
 import Navbar from './components/Navbar';
 import Homepage from './pages/Homepage';
-import SearchMovies from './pages/SearchMovies';
-import SavedMovies from './pages/SavedMovies';
-import Footer from './components/Footer';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+//import Footer from './components/Footer';
 
 // import GlobalState Provider
-import { FantinderProvider } from "./utils/GlobalState";
+import { MovieProvider } from "./utils/GlobalState";
 
 // stylesheets
 import './App.scss';
@@ -33,20 +33,20 @@ function App() {
     return (
         <ApolloProvider client={client}>
             <Router>
-                <FantinderProvider>
+                <MovieProvider>
                     <div className="app-container">
                         <div className="app-content">
                             <Navbar />
                             <Switch>
                                 <Route exact path='/' component={Homepage} />
-                                <Route exact path='/search' component={SearchMovies} />
-                                <Route exact path='/saved' component={SavedMovies} />
+                                <Route exact path='/Dashboard' component={Dashboard} />
+                                <Route exact path='/Profile' component={Profile} />
                                 <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
                             </Switch>
                         </div>
                     </div>
-                    <Footer />
-                </FantinderProvider>
+                    
+                </MovieProvider>
             </Router>
         </ApolloProvider>
     );
