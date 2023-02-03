@@ -234,17 +234,17 @@ const Homepage = () => {
 
             <Container>
                 {loading ? <h2>Loading....</h2> : null}
-                {movies.length
-                ?   <MovieCard
-                        movie={movies[movieIndex]}
-                        
-                        displaySkip
-                        likeMovieHandler={handleLikeMovie}
-                        dislikeMovieHandler={handleDislikeMovie}
-                        skipMovieHandler={handleSkipMovie}
-                    />
-                :  null
-                }
+                {movies?.map(movie => {
+                    return (
+                        <MovieCard
+                                key={movie._id}
+                                movie={movie}                 
+                                likeMovieHandler={handleLikeMovie}
+                                dislikeMovieHandler={handleDislikeMovie}
+                                skipMovieHandler={handleSkipMovie}
+                            />
+                            )
+                    })}
             </Container>
         </>
     );
