@@ -94,7 +94,7 @@ function Profile() {
             <Container>
             <h2 className="pb-5">
                 {likedMovies.length 
-                ? `Displaying ${likedMovies.length} saved ${likedMovies.length === 1 ? "movie" : "movies"}:`
+                ? `You have ${likedMovies.length} liked ${likedMovies.length === 1 ? "movie" : "movies"}:`
                 : "You have no liked movies!"   
                 }
             </h2>

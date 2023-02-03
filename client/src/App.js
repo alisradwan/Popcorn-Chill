@@ -4,6 +4,8 @@ import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from "@ap
 import React from 'react';
 import { setContext } from '@apollo/client/link/context';
 
+import { MovieProvider } from "./utils/MovieContext";
+
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Homepage from "./pages/Homepage";
@@ -32,16 +34,16 @@ function App() {
   return (
     <ApolloProvider client = {client}>
       <Router>
-      <>
-        <Navbar />
-        <Switch>
-          <Route exact path='/' component={Homepage} />
-          <Route exact path='/dashboard' component={Dashboard} />
-          <Route exact path='/profile' component={Profile} />
-          <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
-        </Switch>
-      </>
-        </Router>
+        <MovieProvider>
+          <Navbar />
+          <Switch>
+            <Route exact path='/' component={Homepage} />
+            <Route exact path='/dashboard' component={Dashboard} />
+            <Route exact path='/profile' component={Profile} />
+            <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
+          </Switch>
+        </MovieProvider>
+      </Router>
    </ApolloProvider>
   );
 }

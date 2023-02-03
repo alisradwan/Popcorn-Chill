@@ -13,17 +13,45 @@ export const ADD_USER = gql`
 `;
 
 export const LOGIN_USER = gql`
-  mutation login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
+mutation login($email: String!, $password: String!) {
+  login(email: $email, password: $password) {
       token
       user {
-        _id
-        username
+          _id
+          username
+          email
+          likedMovies {
+              _id
+              movie_id
+              title
+              overview
+              release_date
+              rating
+              vote_count
+              poster
+              likedUsers {
+                  _id
+                  username
+              }
+          }
+          dislikedMovies{
+              _id
+              movie_id
+              title
+              overview
+              release_date
+              rating
+              vote_count
+              poster
+              likedUsers {
+                  _id
+                  username
+              }
+          }
       }
-    }
-  }  
+  }
+}
 `;
-
 export const ADD_MOVIE = gql`
   mutation addMovie($input: MovieInput!) {
     addMovie(input:$input) {
@@ -56,46 +84,14 @@ export const ADD_MOVIE = gql`
 export const LIKE_MOVIE = gql`
   mutation likeMovie($movieId: ID!) {
     likeMovie(movieId: $movieId) {
-      likedMovies {
+      id
+      likedUsers {
         _id
-        movie_id
-        adult
-        genres
-        homepage
-        overview
-        poster
-        rating
-        release_date
-        runtime
-        title
-        trailer
-        vote_count
-        likedUsers {
-          _id
-          username
-        }
+        username
       }
-      dislikedMovies {
-        _id
-        movie_id
-        adult
-        genres
-        homepage
-        overview
-        poster
-        rating
-        release_date
-        runtime
-        title
-        trailer
-        vote_count
-        dislikedUsers {
-          _id
-          username
-        }
-      }
+      likeCount
     }
-  }  
+  }    
 `;
 
 export const DISLIKE_MOVIE = gql`

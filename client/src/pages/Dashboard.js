@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import MovieBox from "../components/MovieBox";
+import MovieCard from "../components/MovieCard";
 import { Form, Button, Container } from "react-bootstrap";
 import { searchMovie } from '../utils/tmdb';
 import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from '../utils/mutations';
@@ -145,7 +145,8 @@ const handleFormSubmit = async (event) => {
               <Button type='submit' className="mt-2">Search</Button>
         </Form>
       </Container>
-      {!searching && !results}
+      <Container>
+      {!searching && !results
       ?   <h2 className="results-heading">No movies found! Please try another search.</h2>
       : <div>
           <h2 className="results-heading">
@@ -155,7 +156,7 @@ const handleFormSubmit = async (event) => {
               <div className="grid">
                 {searchedMovies?.map((movie) => {
                   return (
-                    <MovieBox 
+                    <MovieCard 
                       key={movie._id}
                       movie={movie}
                       likeMovieHandler={handleLikeMovie}
@@ -165,7 +166,9 @@ const handleFormSubmit = async (event) => {
                 })}
               </div>
           </div>
-      </div>
+        </div>
+        }
+      </Container>
     </>
   );
 }
