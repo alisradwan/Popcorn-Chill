@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import MovieBox from "../components/MovieBox";
-import tmdb from "../utils/tmdb";
-import Auth from "../utils/auth";
+import MovieBox from "../../components/MovieBox";
+import tmdb from "../../utils/tmdb";
+import Auth from "../../utils/auth";
 
-const Homepage = () => {
+const TvShows = () => {
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
     const movieSearch = async () => {
-      const { data } = await tmdb.get("/movie/popular");
+      const { data } = await tmdb.get("/tv/popular");
       console.log(data);
       setMovies(data.results);
     };
@@ -18,12 +18,8 @@ const Homepage = () => {
 
   return (
     <>
-      {Auth.loggedIn() ? (
-        <h1 className="center">Welcome to Popcorn N Chill!</h1>
-      ) : (
-        <h1 className="center">Please login to search for movies!</h1>
-      )}
-      <Container>
+      <div>
+        <h3 className="center">Popular TV Shows</h3>
         {movies.length > 0 ? (
           <div className="container">
             <div className="grid">
@@ -33,11 +29,11 @@ const Homepage = () => {
             </div>
           </div>
         ) : (
-          <h2>Sorry !! No Movies Found</h2>
+          <h2 className="errPage">Sorry !! No Movies Found</h2>
         )}
-      </Container>
+      </div>
     </>
   );
 };
 
-export default Homepage;
+export default TvShows;

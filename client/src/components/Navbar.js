@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Navbar, Nav, Container, Modal, Tab } from "react-bootstrap";
 import SignUpForm from "./SignupForm";
 import LoginForm from "./LoginForm";
+import Genres from "./genres";
 
 import Auth from "../utils/auth";
 
@@ -26,6 +27,8 @@ const AppNavbar = () => {
               {/* if user is logged in show saved books and logout */}
               {Auth.loggedIn() ? (
                 <>
+                  <Genres />
+
                   <Nav.Link as={Link} to="/Profile">
                     See Your Favorite Movies
                   </Nav.Link>
