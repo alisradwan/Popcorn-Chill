@@ -168,6 +168,7 @@ const resolvers = {
         },
 
         addComment: async (parent, { movieId, body }, context ) => {
+            console.log("start add comment");
             if (context.user) {
                 return Movie.findOneAndUpdate(
                     { _id: movieId },

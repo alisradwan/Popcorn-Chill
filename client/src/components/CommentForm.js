@@ -11,7 +11,7 @@ const CommentForm = ({ movieId }) => {
     
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-
+        console.log("submit movieId:" + movieId);
         try {
             const { data } = await addComment({
                 variables: {
@@ -70,8 +70,8 @@ const CommentForm = ({ movieId }) => {
           </>
           ) : (
             <p>
-                You need to be logged in to share your thoughts. Please{' '}
-                <Link to="/login">login</Link> or <Link to="/signup">signup.</Link>
+                You need to be logged in to leave comment. Please{' '}
+                <Link to="/">login/signup</Link>
             </p>
           )}
         </>

@@ -124,10 +124,11 @@ const MovieCard = (props) => {
                         
 
                         <div className="my-5">
-                        <CommentList comments={movieData.comments} />
+                        <CommentList comments={movie.comments} />
                         </div>
                         <div className="m-3 p-4" style={{ border: '1px dotted #1a1a1a' }}>
-                        <CommentForm movieId={movieData._id} />
+                           
+                        <CommentForm movieId={movie._id} />
                         </div>
                     </div>
 

@@ -19,6 +19,11 @@ export const GET_USER = gql`
         releaseDate
         poster
         trailer
+        comments {
+          _id
+          body
+          author
+        }
         likedUsers {
           _id
           username
@@ -75,7 +80,6 @@ query getSingleMovie($movieId: ID!) {
       _id
       body
       author
-      createdAt
     }
   }
 }
@@ -109,7 +113,6 @@ export const SINGLE_USER = gql`
           _id
           body
           author
-          createdAt
         }
       }
     }

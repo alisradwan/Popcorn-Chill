@@ -31,6 +31,11 @@ export const LOGIN_USER = gql`
                     voteCount
                     poster
                     trailer
+                    comments {
+                        _id
+                        body
+                        author
+                      }
                     likedUsers {
                         _id
                         username
@@ -72,6 +77,11 @@ export const ADD_MOVIE = gql`
                 _id
                 username
             }
+            comments {
+                _id
+                body
+                author
+              }
         }
     }
 `
@@ -89,6 +99,11 @@ export const LIKE_MOVIE = gql`
                 voteCount
                 poster
                 trailer
+                comments {
+                    _id
+                    body
+                    author
+                  }
                 likedUsers {
                     _id
                     username
@@ -108,6 +123,11 @@ export const LIKE_MOVIE = gql`
                     _id
                     username
                 }
+                comments {
+                    _id
+                    body
+                    author
+                  }
             }
         }
     }
