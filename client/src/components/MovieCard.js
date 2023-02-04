@@ -5,6 +5,12 @@ import { Accordion, AccordionContext, Button, Card, ResponsiveEmbed, Row, Col } 
 import StarRatings from 'react-star-ratings';
 import { useAccordionToggle } from 'react-bootstrap/AccordionToggle';
 
+import CommentList from '../components/CommentList';
+import CommentForm from '../components/CommentForm';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@apollo/react-hooks';
+import { SINGLE_MOVIE } from '../utils/queries';
+
 // import utils
 import Auth from '../utils/auth';
 import { useMovieContext } from "../utils/GlobalState";
@@ -20,6 +26,21 @@ const MovieCard = (props) => {
         skipMovieHandler,
         displaySkip
     } = props;
+
+// comment added
+    const { movieId } = useParams();
+    const { loading, data } = useQuery(SINGLE_MOVIE, {
+        variables: {
+            movieId: movieId
+        },
+    });
+
+    const movieData = data?.movieData || {};
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+//end comment added
 
     function ContextAwareToggle({ eventKey, callback }) {
         const currentEventKey = useContext(AccordionContext);
@@ -97,6 +118,18 @@ const MovieCard = (props) => {
                             </Card.Text>
                         </Card.Body>
                     </Accordion.Collapse>
+                
+                    <div className="my-3">
+                        
+                        
+
+                        <div className="my-5">
+                        <CommentList comments={movieData.comments} />
+                        </div>
+                        <div className="m-3 p-4" style={{ border: '1px dotted #1a1a1a' }}>
+                        <CommentForm movieId={movieData._id} />
+                        </div>
+                    </div>
 
                 {Auth.loggedIn()
                 ?   <Card.Footer className="d-flex justify-content-between">

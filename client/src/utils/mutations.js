@@ -149,3 +149,25 @@ export const DISLIKE_MOVIE = gql`
         }
     }
 `;
+
+export const ADD_COMMENT = gql`
+  mutation addComment($movieId: ID!, $body: String!) {
+    addComment(movieId: $movieId, body: $body) {
+      _id
+      externalMovieId
+      title
+      overview
+      releaseDate
+      rating
+      voteCount
+      poster
+      trailer
+      comments {
+        _id
+        body
+        author
+        createdAt
+      }
+    }
+  }
+`;
