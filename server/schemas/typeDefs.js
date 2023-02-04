@@ -18,6 +18,14 @@ const typeDefs = gql`
         trailer: String
         likedUsers: [User]
         dislikedUsers: [User]
+        comments: [Comment]
+    }
+
+    type Comment {
+        _id: ID
+        body: String
+        author: String
+        createdAt: String
     }
 
     type User {
@@ -56,6 +64,8 @@ const typeDefs = gql`
         addMovie(input: MovieInput!): Movie
         likeMovie(movieId: ID!): User
         dislikeMovie(movieId: ID!): User
+        addComment(movieId: ID!, body: String!): Movie
+        removeComment(movieId: ID!, commentId: ID!): Movie
     }
 `;
 

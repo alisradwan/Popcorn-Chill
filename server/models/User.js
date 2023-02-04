@@ -35,7 +35,13 @@ const userSchema = new Schema(
             validate: (arr) => {
                 return arr.filter(v => v === null).length === 0; 
             }
-        }]
+        }],
+        movies: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'Movie',
+            }
+        ]
     },
     // set this to use virtual below
     {

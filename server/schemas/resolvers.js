@@ -8,6 +8,7 @@ const resolvers = {
             if (context.user) {
                 const userData = await User.findOne({ _id: context.user._id })
                     .select('-__v -password')
+                    .populate('movies')
                     .populate('dislikedMovies')
                     .populate('likedMovies');
                 
@@ -21,6 +22,7 @@ const resolvers = {
         users: async () => {
             return User.find()
                 .select('-__v -password')
+                .populate('movies')
                 .populate('dislikedMovies')
                 .populate('likedMovies')
                 .populate('Movie.dislikedUsers')
@@ -31,6 +33,7 @@ const resolvers = {
         user: async (parent, { username }) => {
             return User.findOne({ username })
                 .select('-__v -password')
+                .populate('movies')
                 .populate('dislikedMovies')
                 .populate('likedMovies')
                 .populate('Movie.dislikedUsers')
@@ -51,6 +54,12 @@ const resolvers = {
                 .select('-__v')
                 .populate('dislikedUsers')
                 .populate('likedUsers');
+        },
+
+        // get user's movie
+        movies: async (parent, { username }) => {
+            const params = username ? { username } : {};
+            return Movie.find(params)
         }
     },
 
@@ -156,6 +165,39 @@ const resolvers = {
                 return updatedUser;
             }
             throw new AuthenticationError('You need to be logged in!')
+        },
+
+        addComment: async (parent, { movieId, body }, context ) => {
+            if (context.user) {
+                return Movie.findOneAndUpdate(
+                    { _id: movieId },
+                    {
+                        $addToSet: {
+                            comments: { body, author: context.user.username },
+                        },
+                    },
+                    {
+                        new: true,
+                        runValidators: true,
+                    }
+                );
+            }
+            throw new AuthenticationError (" You need to be logged in! ");
+        },
+
+        removeComment: async (parent, { movieId, commentId }, context) => {
+            if (context.user) {
+                return Movie.findOneAndUpdate(
+                    { _id: movieId },
+                    {
+                        $pull: {
+                            comments: { _id: commentId, author: context.user.username },
+                        },
+                    },
+                    { new: true }
+                );
+            }
+            throw new AuthenticationError (" You need to be logged in! ");
         }
     }
 };

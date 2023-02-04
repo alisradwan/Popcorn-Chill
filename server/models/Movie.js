@@ -43,7 +43,20 @@ const movieSchema = new Schema(
             validate: (arr) => {
                 return arr.filter(v => v === null).length === 0; 
             }
-        }]
+        }],
+        comments: [
+            {
+                body: {
+                    type: String,
+                    required: true,
+                },
+                author: {
+                    type: String,
+                    required: true
+                },
+                createdAt: String
+            }
+        ],
     }
 );
 
