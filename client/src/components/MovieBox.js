@@ -25,12 +25,12 @@ const MovieBox = ({
           </button>
           <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-              <Modal.Title>
-                <h3 className="center">{title}</h3>
-                <h3 className="center">{name}</h3>
+              <Modal.Title className="center">
+                <h3>{title}</h3>
+                <h3>{name}</h3>
               </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="center">
               <img
                 className="card-img-top"
                 style={{ width: "14rem" }}

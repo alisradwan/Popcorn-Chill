@@ -50,8 +50,8 @@ function MovieCard(props) {
             </button>
             <Modal size="lg" show={show} onHide={handleClose}>
               <Modal.Header closeButton>
-                <Modal.Title>
-                  <h1 className="lg">{movie.title}</h1>
+                <Modal.Title className="center">
+                  <h1>{movie.title}</h1>
                 </Modal.Title>
               </Modal.Header>
 

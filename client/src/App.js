@@ -7,6 +7,7 @@ import {
   createHttpLink,
 } from "@apollo/client";
 import React from "react";
+import Navbar from "./components/Navbar";
 import { setContext } from "@apollo/client/link/context";
 import Trindingmoves from "./pages/Movies/trindingmoves";
 import TvShows from "./pages/TvShows/TvShows";
@@ -17,14 +18,14 @@ import TopRelated from "./pages/Movies/TopRelated";
 import AiringToday from "./pages/TvShows/AiringToday";
 import TopRelatedShow from "./pages/TvShows/TopRelatedShow";
 import OnTV from "./pages/TvShows/OnTV";
+import Home from "./components/Home";
+import Footer from "./components/Footer";
 
 import { MovieProvider } from "./utils/MovieContext";
 
-import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Homepage from "./pages/Homepage";
 import Profile from "./pages/Profile";
-
 const httpLink = createHttpLink({
   uri: "/graphql",
 });
@@ -60,11 +61,12 @@ function App() {
             <Route exact path="/AiringToday" component={AiringToday} />
             <Route exact path="/TvShows" component={TvShows} />
             <Route exact path="/PopularMovies" component={Trindingmoves} />
-            <Route exact path="/" component={Homepage} />
+            <Route exact path="/" component={Home} />
             <Route exact path="/dashboard" component={Dashboard} />
             <Route exact path="/profile" component={Profile} />
             <Route render={() => <h1 className="display-2">Wrong page!</h1>} />
           </Switch>
+          <Footer />
         </MovieProvider>
       </Router>
     </ApolloProvider>
