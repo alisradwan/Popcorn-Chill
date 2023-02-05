@@ -65,7 +65,7 @@ const typeDefs = gql`
         likeMovie(movieId: ID!): User
         dislikeMovie(movieId: ID!): User
         addComment(movieId: ID!, body: String!): Movie
-        removeComment(movieId: ID!, commentId: ID!): Movie
+        removeComment(movieId: ID!, commentId: String!): Movie
     }
 `;
 

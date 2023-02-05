@@ -191,3 +191,25 @@ export const ADD_COMMENT = gql`
     }
   }
 `;
+
+export const REMOVE_COMMENT = gql`
+  mutation removeComment($movieId: ID!, $commentId: String!) {
+    removeComment(movieId: $movieId, commentId: $commentId) {
+        _id
+        externalMovieId
+        title
+        overview
+        releaseDate
+        rating
+        voteCount
+        poster
+        trailer
+        comments {
+          _id
+          body
+          author
+          createdAt
+        }
+    }
+  }
+`

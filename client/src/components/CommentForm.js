@@ -61,8 +61,8 @@ const CommentForm = ({ movieId }) => {
                 ></textarea>
               </div>
   
-              <div className="col-12 col-lg-3">
-                <button className="btn btn-primary btn-block py-3" type="submit">
+              <div className="col-12 col-lg-9">
+                <button className="btn btn-primary btn-block py-2" type="submit">
                   Add Comment
                 </button>
               </div>
