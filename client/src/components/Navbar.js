@@ -22,7 +22,7 @@ const AppNavbar = () => {
           <Navbar.Collapse id="navbar">
             <Nav className="ml-auto">
               <Nav.Link as={Link} to="/Dashboard">
-                Search For Movies
+                Search Movies
               </Nav.Link>
               {/* if user is logged in show saved books and logout */}
               {Auth.loggedIn() ? (
@@ -30,7 +30,7 @@ const AppNavbar = () => {
                   <Genres />
 
                   <Nav.Link as={Link} to="/Profile">
-                    See Your Favorite Movies
+                    Your Profile
                   </Nav.Link>
                   <Nav.Link onClick={Auth.logout}>Logout</Nav.Link>
                 </>

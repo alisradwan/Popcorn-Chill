@@ -176,9 +176,9 @@ const SearchMovies = () => {
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             type='text'
-                            placeholder='The Lord of the Rings'
+                            placeholder='Enter the movie name!'
                         />
-                        <Button type='submit' className="mt-2">Search</Button>
+                        <Button type='submit' className="mt-1">Search</Button>
                     </Form>
                 </Container>
             </Jumbotron>

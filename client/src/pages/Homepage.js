@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Jumbotron } from "react-bootstrap";
 import MovieBox from "../components/MovieBox";
 import tmdb from "../utils/tmdb";
 import Auth from "../utils/auth";
@@ -19,7 +19,10 @@ const Homepage = () => {
   return (
     <>
       {Auth.loggedIn() ? (
-        <h1 className="center">Welcome to Popcorn N Chill!</h1>
+        <Jumbotron className="center">
+            <h1>Welcome to Popcorn N Chill!</h1> 
+            <p>Search your next favorite movie and leave comments</p>
+        </Jumbotron>
       ) : (
         <h1 className="center">Please login to search for movies!</h1>
       )}
