@@ -14,7 +14,7 @@ import Profile from './pages/Profile';
 import { MovieProvider } from "./utils/GlobalState";
 
 // stylesheets
-import './App.scss';
+import './App.css';
 
 const client = new ApolloClient({
     request: operation => {
