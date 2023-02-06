@@ -5,7 +5,6 @@ import { REMOVE_COMMENT } from '../utils/mutations';
 
 const CommentList = ({ movieId,  comments = [] }) => {
   const [removeComment, { error }] = useMutation(REMOVE_COMMENT);  
-
   if (!comments.length) {
         comments.forEach(comment => {
             console.log("comment found: "+ comment._id);
@@ -21,10 +20,10 @@ const CommentList = ({ movieId,  comments = [] }) => {
             commentId
           },
         });
-    
       } catch (err) {
         console.error(err);
       }
+      window.location.reload();
     };
 
     return (
