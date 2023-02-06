@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 // Components
 import { Container, Jumbotron, Form } from 'react-bootstrap';
 import MovieCard from '../components/MovieCard';
+import MovieBox from '../components/MovieBox';
 // TMDB API
 import { getTrendingMovies, searchTMDB } from '../utils/API';
 // GraphQL
@@ -359,7 +360,7 @@ const handleDislikeMovie = (dislikedMovie) => {
         <section className="page-section center" id="portfolio">
           {loading ? <h2>Loading....</h2> : null}
               {movies.length             
-              ?   <MovieCard
+              ?   <MovieBox
                       movie={movies[movieIndex]}
                       displayTrailer
                       displaySkip
@@ -502,7 +503,7 @@ const handleDislikeMovie = (dislikedMovie) => {
             <div className="col-md-3">
               <div className="team-member">
                 <h4>Selina Su</h4>
-                <p class="text-muted">insert title</p>
+                <p class="text-muted">Full Stack Web Developer</p>
                 <a
                   className="btn btn-dark btn-social mx-2"
                   href="https://github.com/fuuko08"
@@ -512,7 +513,7 @@ const handleDislikeMovie = (dislikedMovie) => {
                 </a>
                 <a
                   className="btn btn-dark btn-social mx-2"
-                  href="#!"
+                  href="https://www.linkedin.com/in/selina-su-437501144/"
                   aria-label="Parveen Anand LinkedIn Profile"
                 >
                   <i className="fab fa-linkedin-in"></i>

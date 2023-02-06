@@ -1,57 +1,128 @@
-import { Modal, show, Button } from "react-bootstrap";
-import React, { useState } from "react";
-const API_IMG = "https://image.tmdb.org/t/p/w500/";
+import React, { useContext } from 'react';
 
-const MovieBox = ({
-  title,
-  name,
-  poster_path,
-  vote_average,
-  release_date,
-  overview,
-}) => {
-  const [show, setShow] = useState(false);
+// import bootstrap-react components
+import { Accordion, AccordionContext, Button, Card, ResponsiveEmbed, Row, Col } from 'react-bootstrap';
+import StarRatings from 'react-star-ratings';
+import { useAccordionToggle } from 'react-bootstrap/AccordionToggle';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@apollo/react-hooks';
+import { SINGLE_MOVIE } from '../utils/queries';
 
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
+// import utils
+import { useMovieContext } from "../utils/GlobalState";
 
-  return (
-    <div className="card text-center bg-secondary mb-3">
-      <div className="card-body">
-        <img className="card-img-top" src={API_IMG + poster_path} />
-        <div className="card-body">
-          <button type="button" className="btn btn-dark" onClick={handleShow}>
-            View More
-          </button>
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title className="center">
-                <h3>{title}</h3>
-                <h3>{name}</h3>
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="center">
-              <img
-                className="card-img-top"
-                style={{ width: "14rem" }}
-                src={API_IMG + poster_path}
-              />
-              <h4>IMDb: {vote_average}</h4>
-              <h5>Release Date: {release_date}</h5>
-              <br></br>
-              <h6>Overview</h6>
-              <p>{overview}</p>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </div>
-      </div>
-    </div>
-  );
-};
+const MovieBox = (props) => {
+    const [state, ] = useMovieContext();
+    const {
+        movie,
+        displayTrailer,
+        skipMovieHandler,
+        displaySkip
+    } = props;
+
+// comment added
+    const { movieId } = useParams();
+    const { loading, data } = useQuery(SINGLE_MOVIE, {
+        variables: {
+            movieId: movieId
+        },
+    });
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+//end comment added
+
+    function ContextAwareToggle({ eventKey, callback }) {
+        const currentEventKey = useContext(AccordionContext);
+    
+        const decoratedOnClick = useAccordionToggle(
+            eventKey,
+            () => callback && callback(eventKey),
+        );
+    
+        const isCurrentEventKey = currentEventKey === eventKey;
+      
+        return (
+            <Button
+                variant="link"
+                className={`link ${isCurrentEventKey ? 'text-muted' : '' }`}
+                onClick={decoratedOnClick}
+            >
+                {isCurrentEventKey
+                ?   <span className="small">Collapse <i className="fas fa-chevron-up"></i></span>
+                :   <span className="small">Click for details <i className="fas fa-chevron-down"></i></span>
+                }
+            </Button>
+        );
+    }      
+
+    return (
+        movie
+        ?   <Accordion>
+            <Card>
+                {displayTrailer && movie.trailer
+                    ? <ResponsiveEmbed aspectRatio="16by9">
+                        <iframe
+                            title={movie._id}
+                            width="560"
+                            height="315"
+                            src={movie.trailer}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen></iframe>
+                    </ResponsiveEmbed>
+                    : (movie.poster && <Card.Img src={movie.poster} alt={`The cover for ${movie.title}`} variant='top' />)
+                }
+                <Card.Body>
+                    <Card.Title>
+                        {movie.title}
+                    </Card.Title>
+                    <Row>
+                        <Col sm={6}>
+                            { movie.rating >= 0
+                            ?   <StarRatings
+                                    rating={movie.rating/2}
+                                    numberOfStars={5}
+                                    name={`${movie._id}-rating`}
+                                    starDimension="20px"
+                                    starSpacing="1px"
+                                />
+                            :   null
+                            }
+                            <Card.Text className="small">
+                            ({movie.voteCount?.toLocaleString()} ratings)
+                            </Card.Text>
+                        </Col>
+                        <Col className="text-right">
+                            <ContextAwareToggle eventKey={movie._id} />
+                        </Col>
+                    </Row>
+                </Card.Body>
+                    <Accordion.Collapse eventKey={movie._id}>
+                        <Card.Body>
+                            <Card.Text>Plot Summary</Card.Text>
+                            <Card.Text className='small'>{movie.overview}</Card.Text>
+                            <Card.Text className='small'>Release Date: {movie.releaseDate}</Card.Text>
+                            <Card.Text className='small'>
+                                {`${movie.likedUsers.length} ${movie.likedUsers.length === 1 ? 'user' : 'users'} liked this movie`}
+                            </Card.Text>
+                        </Card.Body>
+                    </Accordion.Collapse>
+                   {displaySkip &&
+                        <Card.Footer className="text-center">
+                            <Button
+                                className="movie-card-button"
+                                size="lg"
+                                onClick={skipMovieHandler}>
+                                    Next Movie
+                            </Button>
+                        </Card.Footer>
+                  }
+                </Card>
+            </Accordion>
+        :   null
+    )
+}
 
 export default MovieBox;
