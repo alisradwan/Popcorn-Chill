@@ -9,5 +9,3 @@ export default axios.create({
     api_key: "4d52fdbd34886b23d23b1968542bb378",
   },
 });
-
-const api_key = "4d52fdbd34886b23d23b1968542bb378"

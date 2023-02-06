@@ -60,7 +60,7 @@ const CommentForm = ({ movieId }) => {
               </div>
   
               <div className="col-12 col-lg-9">
-                <button className="btn btn-primary btn-block py-2" type="submit">
+                <button className="btn btn-primary btn-block py-1" type="submit">
                   Add Comment
                 </button>
               </div>

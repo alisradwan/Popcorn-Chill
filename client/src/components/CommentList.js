@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, Button } from 'react-bootstrap';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/react-hooks';
 import { REMOVE_COMMENT } from '../utils/mutations';
 
 const CommentList = ({ movieId,  comments = [] }) => {
@@ -29,16 +29,16 @@ const CommentList = ({ movieId,  comments = [] }) => {
     return (
         <>
             <h3
-              className="p-5 display-inline-block"
+              className="p-3 display-inline-block"
               style={{ borderBottom: '1px dotted #1a1a1a' }}
             >
                 Comments
             </h3>
 
-            <Card className="flex-row my-4">
+            <Card className="flex-row my-2">
               {comments &&
                 comments.map((comment) => (
-                  <div key={comment._id} className="col-12 mb-3 pb-3">
+                  <div key={comment._id} className="col-12 mb-3 pb-1">
                     <div className="p-3 bg-dark text-light">
                       <Card.Header className="card-header">
                         {comment.author} commented:

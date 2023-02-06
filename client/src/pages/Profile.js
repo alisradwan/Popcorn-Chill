@@ -14,20 +14,18 @@ import { idbPromise } from "../utils/helpers";
 import { findIndexByAttr } from '../utils/helpers'
 
 const SavedMovies = () => {
-    // State
+
     const [state, dispatch] = useMovieContext();
     const { likedMovies, dislikedMovies } = state;
-    // GraphQL
     const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
     const [likeMovie] = useMutation(LIKE_MOVIE);
     const { loading, data } = useQuery(GET_USER);
 
-    useEffect(() => {
-        // if we're online, use server to update movie preferences
+    useEffect(() => {        
         if (!likedMovies.length && !dislikedMovies.length) {
             if (data && data.me) {
                 if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
-                    console.log("Online, using data from server to update movie preferences")
+                    console.log("Online")
                     dispatch({
                         type: UPDATE_MOVIE_PREFERENCES,
                         likedMovies: data.me.likedMovies,
@@ -35,12 +33,11 @@ const SavedMovies = () => {
                     });
                 }
             }
-            // if we're offline, use idb to update movie preferences
             else if (!loading) {
                 idbPromise('likedMovies', 'get').then(likedMovies => {
                     idbPromise('dislikedMovies', 'get').then(dislikedMovies => {
                         if (dislikedMovies.length || likedMovies.length) {
-                            console.log("Offline, using data from idb to update movie preferences")
+                            console.log("Offline")
                             dispatch({
                                 type: UPDATE_MOVIE_PREFERENCES,
                                 likedMovies,
@@ -54,25 +51,23 @@ const SavedMovies = () => {
     }, [data, loading, likedMovies, dislikedMovies, dispatch])
 
     const handleLikeMovie = (likedMovie) => {
-        // update the db
+        
         likeMovie({
             variables: { movieId: likedMovie._id }
         })
         .then(({data}) => {
             console.log(data.likeMovie)
             if (data) {
-                // update global state
+                
                 dispatch({
                     type: UPDATE_MOVIE_PREFERENCES,
                     likedMovies: data.likeMovie.likedMovies,
                     dislikedMovies: data.likeMovie.dislikedMovies
                 });
-    
-                // find the updated movie
+                   
                 const likedMovieIndex = findIndexByAttr(data.likeMovie.likedMovies, '_id', likedMovie._id);
                 const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];
-
-                // update idb
+               
                 idbPromise('likedMovies', 'put', updatedLikedMovie);
                 idbPromise('dislikedMovies', 'delete', updatedLikedMovie);
             } else {
@@ -83,24 +78,22 @@ const SavedMovies = () => {
     };
 
     const handleDislikeMovie = (dislikedMovie) => {
-        // update the db
+        
         dislikeMovie({
             variables: { movieId: dislikedMovie._id }
         })
         .then(async ({data}) => {
             if (data) {
-                // update global state
+                
                 dispatch({
                     type: UPDATE_MOVIE_PREFERENCES,
                     likedMovies: data.dislikeMovie.likedMovies,
                     dislikedMovies: data.dislikeMovie.dislikedMovies
                 });
-    
-                // find the updated movie
+                   
                 const dislikedMovieIndex = await findIndexByAttr(data.dislikeMovie.dislikedMovies, '_id', dislikedMovie._id);
                 const updatedDislikedMovie = data.dislikeMovie.dislikedMovies[dislikedMovieIndex];
     
-                // update idb
                 idbPromise('likedMovies', 'delete', updatedDislikedMovie);
                 idbPromise('dislikedMovies', 'put', updatedDislikedMovie);
             } else {
@@ -112,7 +105,7 @@ const SavedMovies = () => {
 
     return (
         <>
-            <Jumbotron fluid className="text-light bg-dark">
+            <Jumbotron fluid className="bg-dark">
                 <Container>
                     <h1>My Movies</h1>
                 </Container>

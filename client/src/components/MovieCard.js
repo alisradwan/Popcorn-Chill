@@ -120,9 +120,6 @@ const MovieCard = (props) => {
                     </Accordion.Collapse>
                 
                     <div className="my-3">
-                        
-                        
-
                         <div className="my-5">
                         <CommentList comments={ movie.comments}
                                     movieId={ movie._id } />
