@@ -39,14 +39,15 @@ const CommentList = ({ movieId,  comments = [] }) => {
               {comments &&
                 comments.map((comment) => (
                   <div key={comment._id} className="col-12 mb-3 pb-1">
-                    <div className="p-3 bg-dark text-light">
+                    <div className="p-3 d-flex justify-content-between">
                       <Card.Header className="card-header">
                         {comment.author} commented:
                         <br/>
-                        <Button className='btn-block btn-danger' onClick={() => handleDeleteComment(movieId, comment._id)} > X </Button>
+                        
                       </Card.Header>
-                      <Card.Body className="card-body text-light">{comment.body}</Card.Body>
-                    </div>
+                    </div>  
+                      <Card.Body className="card-body">{comment.body}</Card.Body>
+                    <Button className='btn-block btn-danger' onClick={() => handleDeleteComment(movieId, comment._id)} > X </Button>
                   </div>
                 ))}
             </Card>
