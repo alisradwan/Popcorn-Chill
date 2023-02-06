@@ -13,9 +13,7 @@ const CommentList = ({ movieId,  comments = [] }) => {
         return <h3>No Comments Yet</h3>;
     }
 
-    const handleDeleteComment = async (movieId, commentId) => {
-      console.log("*****" + commentId);
-  
+    const handleDeleteComment = async (movieId, commentId) => { 
       try {
         const { data } = await removeComment({
           variables: {

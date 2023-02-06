@@ -9,9 +9,7 @@ const CommentForm = ({ movieId }) => {
     const [characterCount, setCharacterCount] = useState(0);
     const [addComment, { error }] = useMutation(ADD_COMMENT);
     
-    const handleFormSubmit = async (event) => {
-        event.preventDefault();
-        console.log("submit movieId:" + movieId);
+    const handleFormSubmit = async (event) => {   
         try {
             const { data } = await addComment({
                 variables: {
