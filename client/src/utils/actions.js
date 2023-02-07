@@ -1,0 +1,3 @@
+export const ADD_MOVIES = "ADD_MOVIES";
+export const UPDATE_MOVIES = "UPDATE_MOVIES";
+export const UPDATE_MOVIE_PREF = "UPDATE_MOVIE_PREF";
