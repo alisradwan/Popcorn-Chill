@@ -235,12 +235,7 @@ function Home() {
       </section>
 
       <section class="page-section bg-light" id="portfolio">
-        <video
-          src={require("../assets/VideoTp.mp4")}
-          autoPlay
-          loop
-          muted
-        ></video>
+
       </section>
 
       <section class="page-section" id="about">
@@ -275,6 +270,22 @@ function Home() {
                   </p>
                 </div>
               </div>
+              <li class="timeline-inverted">
+              <div class="timeline-image">
+                <img
+                  class="rounded-circle img-fluid"
+                  src={require("../assets/img/z2nfRxZCGFgAnVhb9pZO87TyTX5.jpg")}
+                  alt="..."
+                />
+              </div>
+              <div class="timeline-panel">
+                <div class="timeline-heading">
+                </div>
+                <div class="timeline-body">
+
+                </div>
+              </div>
+            </li>
             </li>
             <li class="timeline-inverted">
               <div class="timeline-image">
@@ -383,6 +394,13 @@ function Home() {
                 >
                   <i class="fab fa-github"></i>
                 </a>
+                <a
+                  class="btn btn-dark btn-social mx-2"
+                  href="https://www.linkedin.com/in/selina-su-437501144/"
+                  aria-label="Selina linkedin Profile"
+                >
+                  <i class="fab fa-linkedin"></i>
+                </a>
               </div>
             </div>
             <div class="col-md-3">
@@ -396,6 +414,13 @@ function Home() {
                 >
                   <i class="fab fa-github"></i>
                 </a>
+                <a
+                  class="btn btn-dark btn-social mx-2"
+                  href="https://www.linkedin.com/in/ali-radwan-5b510124b/"
+                  aria-label="Ali linkedin Profile"
+                >
+                  <i class="fab fa-linkedin"></i>
+                </a>
               </div>
             </div>
             <div class="col-md-3">
@@ -408,6 +433,13 @@ function Home() {
                   aria-label="Larry Parker Twitter Profile"
                 >
                   <i class="fab fa-github"></i>
+                </a>
+                <a
+                  class="btn btn-dark btn-social mx-2"
+                  href="https://www.linkedin.com/in/dartagnan-hickey-120181265/"
+                  aria-label="Dart linkedin Profile"
+                >
+                  <i class="fab fa-linkedin"></i>
                 </a>
               </div>
             </div>
@@ -428,7 +460,7 @@ function Home() {
           <div class="row">
             <div class="col-lg-8 mx-auto text-center">
               <p class="large text-muted">
-                
+                {" "}
                 We are a group of fullstack developers from the 2023 UCLA Coding
                 Bootcamp. Front end, back end, we can do it all!
               </p>
@@ -441,7 +473,6 @@ function Home() {
         <div class="container"></div>
       </div>
 
-      <video src={require("../assets/VideoBg.mp4")} autoPlay loop muted></video>
     </>
   );
 }
