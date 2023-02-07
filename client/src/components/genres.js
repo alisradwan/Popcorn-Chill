@@ -22,7 +22,7 @@ function Genres() {
         <NavDropdown.Item href="/PopularPeople">Popular</NavDropdown.Item>
       </NavDropdown>
       <NavDropdown title="More">
-        <NavDropdown.Item href="/PopularPeople">Contact Us</NavDropdown.Item>
+        <NavDropdown.Item href="/Contact">Contact Us</NavDropdown.Item>
       </NavDropdown>
     </Nav>
   );

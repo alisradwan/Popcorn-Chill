@@ -4,39 +4,51 @@ const { AuthenticationError } = require('apollo-server-express');
 
 const resolvers = {
     Query: {
-        // Get me
         me: async (parent, args, context) => {
             if (context.user) {
                 const userData = await User.findOne({ _id: context.user._id })
                     .select('-__v -password')
-                    .populate('likedMovies')
-                    .populate('dislikedMovies');
+                    .populate('movies')
+                    .populate('dislikedMovies')
+                    .populate('likedMovies');
+                
                 return userData;
             }
-            throw new AuthenticationError("You are not logged in!");
+
+            throw new AuthenticationError('Not logged in');
         },
 
-        // Get all users
+        // get all users
         users: async () => {
             return User.find()
                 .select('-__v -password')
+                .populate('movies')
                 .populate('dislikedMovies')
                 .populate('likedMovies')
                 .populate('Movie.dislikedUsers')
                 .populate('Movie.likedUsers');
         },
 
-        // Get a single user by username
-        user: async (parent, {username}) => {
+        // get a user by username
+        user: async (parent, { username }) => {
             return User.findOne({ username })
                 .select('-__v -password')
+                .populate('movies')
                 .populate('dislikedMovies')
                 .populate('likedMovies')
                 .populate('Movie.dislikedUsers')
                 .populate('Movie.likedUsers');
         },
 
-        // Get all movies
+        // get a movie by id
+        movie: async (parent, { movieId }) => {
+            return Movie.findOne({ _id: movieId })
+                .select('-__v')
+                .populate('dislikedUsers')
+                .populate('likedUsers');
+        },
+
+        // get all movies
         movies: async () => {
             return Movie.find()
                 .select('-__v')
@@ -44,12 +56,10 @@ const resolvers = {
                 .populate('likedUsers');
         },
 
-        // Get a single movie by id
-        movie: async (parent, {movieId}) =>{
-            return Movie.findOne({ _id: movieId })
-                .select('-__v')
-                .populate('dislikedUsers')
-                .populate('likedUsers');
+        // get user's movie
+        movies: async (parent, { username }) => {
+            const params = username ? { username } : {};
+            return Movie.find(params)
         }
     },
 
@@ -57,18 +67,23 @@ const resolvers = {
         addUser: async (parent, args) => {
             const user = await User.create(args);
             const token = signToken(user);
+
             return { token, user };
         },
 
         login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
+
             if (!user) {
-                throw new AuthenticationError("User is not found!")
+                throw new AuthenticationError('Incorrect credentials');
             }
+
             const correctPw = await user.isCorrectPassword(password);
+
             if (!correctPw) {
-                throw new AuthenticationError("Password is not correct!")
+                throw new AuthenticationError('Incorrect credentials');
             }
+
             const token = signToken(user);
             return { token, user };
         },
@@ -80,14 +95,16 @@ const resolvers = {
                     { $addToSet: { friends: friendId } },
                     { new: true }
                 ).populate('friends');
+
                 return updatedUser;
             }
-            throw new AuthenticationError("Please login to continue!");
+
+            throw new AuthenticationError('You need to be logged in!');
         },
 
         addMovie: async (parent, { input }) => {
             const movie = await Movie.findOneAndUpdate(
-                { movie_id: input.movie_id },
+                { externalMovieId: input.externalMovieId },
                 input,
                 { upsert: true, new: true }
             );
@@ -119,7 +136,7 @@ const resolvers = {
 
                 return updatedUser;
             }
-            throw new AuthenticationError("Please login to continue!")
+            throw new AuthenticationError('You need to be logged in!')
         },
 
         dislikeMovie: async (parent, { movieId }, context) => {
@@ -147,41 +164,42 @@ const resolvers = {
 
                 return updatedUser;
             }
-            throw new AuthenticationError("Please login to continue!")
+            throw new AuthenticationError('You need to be logged in!')
         },
 
-        addComment: async (parent, { movieId, commentText }, context) => {
+        addComment: async (parent, { movieId, body }, context ) => {
+            console.log("start add comment");
             if (context.user) {
-                return Movie.findByIdAndUpdate(
+                return Movie.findOneAndUpdate(
                     { _id: movieId },
                     {
                         $addToSet: {
-                            comments: { commentText, commentAuthor: context.user.username },
+                            comments: { body, author: context.user.username },
                         },
                     },
-                    { new: true, runValidators: true },
+                    {
+                        new: true,
+                        runValidators: true,
+                    }
                 );
             }
-            throw new AuthenticationError("Please login to continue!");
+            throw new AuthenticationError (" You need to be logged in! ");
         },
 
         removeComment: async (parent, { movieId, commentId }, context) => {
             if (context.user) {
-                return Movie.findByIdAndUpdate(
+                return Movie.findOneAndUpdate(
                     { _id: movieId },
                     {
                         $pull: {
-                            comments: {
-                                _id: commentId,
-                                commentAuthor: context.user.username,
-                            },
+                            comments: { _id: commentId, author: context.user.username },
                         },
                     },
                     { new: true }
                 );
             }
-            throw new AuthenticationError("Please login to continue!");
-        },
+            throw new AuthenticationError (" You need to be logged in! ");
+        }
     }
 };
 

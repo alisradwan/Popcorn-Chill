@@ -1,23 +1,44 @@
+export function findIndexByAttr(array, attr, value) {
+  for(var i = 0; i < array.length; i += 1) {
+      if(array[i][attr] === value) {
+          return i;
+      }
+  }
+  return -1;
+}
+
 export function idbPromise(storeName, method, object) {
   return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open('movieDB', 1);
+    // open connection to the database with the version of 1
+    const request = window.indexedDB.open('popcornchilDB', 1);
+
+    // create variables to hold reference to the database, transaction (tx), and object store
     let db, tx, store;
+
+    // if version has changed (or if this is the first time using the database), run this method and create the three object stores 
     request.onupgradeneeded = function(e) {
       const db = request.result;
+      // create object store for each type of data and set "primary" key index to be the `_id` of the data
       db.createObjectStore('dislikedMovies', { keyPath: '_id' });
       db.createObjectStore('likedMovies', { keyPath: '_id' });
       db.createObjectStore('movies', { keyPath: '_id' });
     };
 
+    // handle any errors with connecting
     request.onerror = function(e) {
       console.log('There was an error');
     };
 
-    request.onsuccess = function(e) { 
+    // on database open success
+    request.onsuccess = function(e) {
+      // save a reference of the database to the `db` variable
       db = request.result;
+      // open a transaction do whatever we pass into `storeName` (must match one of the object store names)
       tx = db.transaction(storeName, 'readwrite');
+      // save a reference to that object store
       store = tx.objectStore(storeName);
 
+      // if there's any errors, let us know
       db.onerror = function(e) {
         console.log('error', e);
       };
@@ -41,18 +62,10 @@ export function idbPromise(storeName, method, object) {
           break;
       }
 
+      // when the transaction is complete, close the connection
       tx.oncomplete = function() {
         db.close();
       };
     };
   });
-};
-
-export function findIndexByAttr(array, attr, value) {
-    for(var i = 0; i < array.length; i += 1) {
-        if(array[i][attr] === value) {
-            return i;
-        }
-    }
-    return -1;
-  }
+}

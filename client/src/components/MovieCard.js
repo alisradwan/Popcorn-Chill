@@ -1,148 +1,173 @@
-import {
-  Accordion,
-  Button,
-  Card,
-  Row,
-  Col,
-  AccordionContext,
-  Modal,
-} from "react-bootstrap";
-import { useAccordionButton } from "react-bootstrap/AccordionButton";
+import React, { useContext } from 'react';
 
-import React, { useContext, useState } from "react";
-import Auth from "../utils/auth";
-import { useMovieContext } from "../utils/MovieContext";
+// import bootstrap-react components
+import { Accordion, AccordionContext, Button, Card, ResponsiveEmbed, Row, Col } from 'react-bootstrap';
+import StarRatings from 'react-star-ratings';
+import { useAccordionToggle } from 'react-bootstrap/AccordionToggle';
 
-function MovieCard(props) {
-  const [state] = useMovieContext();
-  const { likedMovies, dislikedMovies } = state;
-  const { movie, likeMovieHandler, dislikeMovieHandler } = props;
+import CommentList from '../components/CommentList';
+import CommentForm from '../components/CommentForm';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@apollo/react-hooks';
+import { SINGLE_MOVIE } from '../utils/queries';
 
-  function CustomToggle({ children, eventKey }) {
-    const decoratedOnClick = useAccordionButton(eventKey, () =>
-      console.log("totally custom!")
-    );
+// import utils
+import Auth from '../utils/auth';
+import { useMovieContext } from "../utils/GlobalState";
+
+const MovieCard = (props) => {
+    const [state, ] = useMovieContext();
+    const { likedMovies, dislikedMovies } = state;
+    const {
+        movie,
+        displayTrailer,
+        likeMovieHandler,
+        dislikeMovieHandler,
+        skipMovieHandler,
+        displaySkip
+    } = props;
+
+// comment added
+    const { movieId } = useParams();
+    const { loading, data } = useQuery(SINGLE_MOVIE, {
+        variables: {
+            movieId: movieId
+        },
+    });
+
+    const movieData = data?.movieData || {};
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+//end comment added
+
+    function ContextAwareToggle({ eventKey, callback }) {
+        const currentEventKey = useContext(AccordionContext);
+    
+        const decoratedOnClick = useAccordionToggle(
+            eventKey,
+            () => callback && callback(eventKey),
+        );
+    
+        const isCurrentEventKey = currentEventKey === eventKey;
+      
+        return (
+            <Button
+                variant="link"
+                className={`link ${isCurrentEventKey ? 'text-muted' : '' }`}
+                onClick={decoratedOnClick}
+            >
+                {isCurrentEventKey
+                ?   <span className="small">Collapse <i className="fas fa-chevron-up"></i></span>
+                :   <span className="small">Click for details <i className="fas fa-chevron-down"></i></span>
+                }
+            </Button>
+        );
+    }      
+
     return (
-      <button type="button" onClick={decoratedOnClick}>
-        {children}
-      </button>
-    );
-  }
+        movie
+        ?   <Accordion>
+            <Card>
+                {displayTrailer && movie.trailer
+                    ? <ResponsiveEmbed aspectRatio="16by9">
+                        <iframe
+                            title={movie._id}
+                            width="560"
+                            height="315"
+                            src={movie.trailer}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen></iframe>
+                    </ResponsiveEmbed>
+                    : (movie.poster && <Card.Img src={movie.poster} alt={`The cover for ${movie.title}`} variant='top' />)
+                }
+                <Card.Body>
+                    <Card.Title>
+                        {movie.title}
+                    </Card.Title>
+                    <Row>
+                        <Col sm={6}>
+                            { movie.rating >= 0
+                            ?   <StarRatings
+                                    rating={movie.rating/2}
+                                    numberOfStars={5}
+                                    name={`${movie._id}-rating`}
+                                    starDimension="20px"
+                                    starSpacing="1px"
+                                />
+                            :   null
+                            }
+                            <Card.Text className="small">
+                            ({movie.voteCount?.toLocaleString()} ratings)
+                            </Card.Text>
+                        </Col>
+                        <Col className="text-right">
+                            <ContextAwareToggle eventKey={movie._id} />
+                        </Col>
+                    </Row>
+                </Card.Body>
+                    <Accordion.Collapse eventKey={movie._id}>
+                        <Card.Body>
+                            <Card.Text>Plot Summary</Card.Text>
+                            <Card.Text className='small'>{movie.overview}</Card.Text>
+                            <Card.Text className='small'>Release Date: {movie.releaseDate}</Card.Text>
+                            <Card.Text className='small'>
+                                {`${movie.likedUsers.length} ${movie.likedUsers.length === 1 ? 'user' : 'users'} liked this movie`}
+                            </Card.Text>
+                        </Card.Body>
+                    </Accordion.Collapse>
+                
+                    <div className="my-3">
+                        
+                        
 
-  const [show, setShow] = useState(false);
+                        <div className="my-5">
+                        <CommentList comments={ movie.comments}
+                                    movieId={ movie._id } />
+                        </div>
+                        <div className="m-3 p-4" style={{ border: '1px dotted #1a1a1a' }}>
+                           
+                        <CommentForm movieId={movie._id} />
+                        </div>
+                    </div>
 
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
-
-  return movie ? (
-    <Accordion>
-      <Card className="card text-center bg-secondary mb-3">
-        <div className="card-body">
-          <Card.Img
-            className="card-img-top"
-            src={movie.poster}
-            alt={`Poster ${movie.title}`}
-            variant="top"
-          />
-          <div className="card-body">
-            <button type="button" className="btn btn-dark" onClick={handleShow}>
-              View More
-            </button>
-            <Modal size="lg" show={show} onHide={handleClose}>
-              <Modal.Header closeButton>
-                <Modal.Title className="center">
-                  <h1>{movie.title}</h1>
-                </Modal.Title>
-              </Modal.Header>
-
-              <Modal.Body>
-                <Row>
-                  <Col sm={5}>
-                    <Card.Img
-                      className="card-img-top img"
-                      src={movie.poster}
-                      alt={`Poster ${movie.title}`}
-                      variant="top"
-                    />
-                  </Col>
-                  <Col sm={7}>
-                    <Card.Text className="lg">
-                      {movie.voteCount?.toLocaleString()} IMDb:
-                      {movie.rating >= 0 ? movie.rating : null}
-                    </Card.Text>
-                    <Card.Body>
-                      <Card.Text>Plot Summary</Card.Text>
-                      <Card.Text className="small">{movie.overview}</Card.Text>
-                      <Card.Text>Release Date: {movie.release_date}</Card.Text>
-                      <Card.Text className="lg">
-                        {`${movie.likedUsers.length} ${
-                          movie.likedUsers.length === 1 ? "user" : "users"
-                        } liked this movie`}
-                      </Card.Text>
-                    </Card.Body>
-                    {Auth.loggedIn() ? (
-                      <Card.Footer>
+                {Auth.loggedIn()
+                ?   <Card.Footer className="d-flex justify-content-between">
                         <Button
-                          className="movie-box-button"
-                          disabled={dislikedMovies?.some(
-                            (dislikedMovie) => dislikedMovie._id === movie._id
-                          )}
-                          variant={
-                            dislikedMovies?.some(
-                              (dislikedMovie) => dislikedMovie._id === movie._id
-                            )
-                              ? "outline-secondary"
-                              : "outline-danger"
-                          }
-                          onClick={() => dislikeMovieHandler(movie)}
-                        >
-                          {dislikedMovies?.some(
-                            (dislikedMovie) => dislikedMovie._id === movie._id
-                          ) ? (
-                            <span>Disliked!</span>
-                          ) : (
-                            <i className="far fa-thumbs-down fa-2x" />
-                          )}
+                            className="movie-card-button"
+                            disabled={dislikedMovies?.some(dislikedMovie => dislikedMovie._id === movie._id)}
+                            variant={dislikedMovies?.some(dislikedMovie => dislikedMovie._id === movie._id) ? "outline-secondary" : "outline-danger"}
+                            onClick={() => dislikeMovieHandler(movie)}>
+                                {dislikedMovies?.some(dislikedMovie => dislikedMovie._id === movie._id)
+                                ? <span>Disliked!</span>
+                                : <i className='far fa-thumbs-down fa-2x' />}
                         </Button>
                         <Button
-                          className="movie-card-button"
-                          disabled={likedMovies?.some(
-                            (likedMovie) => likedMovie._id === movie._id
-                          )}
-                          variant={
-                            likedMovies?.some(
-                              (likedMovie) => likedMovie._id === movie._id
-                            )
-                              ? "outline-secondary"
-                              : "outline-success"
-                          }
-                          onClick={() => likeMovieHandler(movie)}
-                        >
-                          {likedMovies?.some(
-                            (likedMovie) => likedMovie._id === movie._id
-                          ) ? (
-                            <span>Liked!</span>
-                          ) : (
-                            <i className="far fa-thumbs-up fa-2x" />
-                          )}
+                            className="movie-card-button"
+                            disabled={likedMovies?.some(likedMovie => likedMovie._id === movie._id)}
+                            variant={likedMovies?.some(likedMovie => likedMovie._id === movie._id) ? "outline-secondary" : "outline-success"}
+                            onClick={() => likeMovieHandler(movie)}>
+                                {likedMovies?.some(likedMovie => likedMovie._id === movie._id)
+                                ? <span>Liked!</span>
+                                : <i className='far fa-thumbs-up fa-2x' />}
                         </Button>
-                      </Card.Footer>
-                    ) : (
-                      <Card.Footer> Please login/signup </Card.Footer>
-                    )}
-                  </Col>
-                </Row>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                  Close
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          </div>
-        </div>
-      </Card>
-    </Accordion>
-  ) : null;
+                    </Card.Footer>
+                :   displaySkip &&
+                        <Card.Footer className="text-center">
+                            <Button
+                                className="movie-card-button"
+                                size="lg"
+                                onClick={skipMovieHandler}>
+                                    Next Movie
+                            </Button>
+                        </Card.Footer>
+                }
+                </Card>
+            </Accordion>
+        :   null
+    )
 }
+
 export default MovieCard;

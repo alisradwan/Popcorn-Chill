@@ -18,10 +18,10 @@ import TopRelated from "./pages/Movies/TopRelated";
 import AiringToday from "./pages/TvShows/AiringToday";
 import TopRelatedShow from "./pages/TvShows/TopRelatedShow";
 import OnTV from "./pages/TvShows/OnTV";
-import Home from "./components/Home";
 import Footer from "./components/Footer";
+import Home from "./components/Home";
 
-import { MovieProvider } from "./utils/MovieContext";
+import { MovieProvider } from "./utils/GlobalState";
 
 import Dashboard from "./pages/Dashboard";
 import Homepage from "./pages/Homepage";

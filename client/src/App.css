@@ -245,6 +245,8 @@ h1,
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-weight: 700;
   line-height: 1.2;
+  color: #000;
+  text-align: center;
 }
 
 h1,
@@ -12256,4 +12258,23 @@ section#contact form#contactForm .form-group {
   font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+div.card {
+  background-image: url("../src/assets/images/popcorn.jpg");
+}
+
+.col-sm-6 {
+  color: #000;
+}
+.btn-link {
+  color: #000;
+}
+
+.comments {
+  background-color: white;
+}
+
+.star-container {
+  color: gold;
 }

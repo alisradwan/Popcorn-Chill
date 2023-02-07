@@ -1,82 +1,61 @@
 const { Schema, model } = require('mongoose');
-const dateFormat = require('../utils/dateFormat');
 
 const movieSchema = new Schema(
     {
-        movie_id: {
+        externalMovieId: {
             type: Number,
             required: true,
             unique: true
         },
-        poster: {
-            type: String
+        rating: {
+            type: Number,
         },
-        adult: {
-            type: Boolean
+        voteCount: {
+            type: Number,
+        },
+        title: {
+            type: String,
+            required: true,
         },
         overview: {
             type: String,
-            required: true
+            required: true,
         },
-        release_date: {
-            type: String
-        },
-        genres: [
-            {
-                type: String
-            },
-        ],
-        title: {
+        releaseDate: {
             type: String,
-            required: true
         },
-        rating: {
-            type: Number
-        },
-        vote_count: {
-            type: Number
-        },
-        runtime: {
-            type: Number
+        poster: {
+            type: String,
         },
         trailer: {
-            type: String
-        },
-        homepage: {
-            type: String
+            type: String,
         },
         likedUsers: [{
             type: Schema.Types.ObjectId,
             ref: 'User',
             validate: (arr) => {
-                return arr.filter( v => v === null).length === 0;
+                return arr.filter(v => v === null).length === 0; 
             }
         }],
         dislikedUsers: [{
             type: Schema.Types.ObjectId,
             ref: 'User',
             validate: (arr) => {
-                return arr.filter( v => v === null).length === 0;
+                return arr.filter(v => v === null).length === 0; 
             }
         }],
         comments: [
             {
-              commentText: {
-                type: String,
-                required: true,
-                minlength: 1,
-                maxlength: 280,
-              },
-              commentAuthor: {
-                type: String,
-                required: true,
-              },
-              createdAt: {
-                type: Date,
-                default: Date.now,
-                get: (timestamp) => dateFormat(timestamp),
-              },
-            },
+                body: {
+                    type: String,
+                    required: true,
+                },
+                author: {
+                    type: String,
+                    required: true
+                },
+                createdAt: String
+            }
         ],
     }
 );

@@ -11,10 +11,3 @@ export default axios.create({
 });
 
 const api_key = "4d52fdbd34886b23d23b1968542bb378"
-
-export const getPopularMovies = (time_window) => {
-  return fetch(`https://api.themoviedb.org/3/trending/movie/${time_window}?api_key=${api_key}`);
-};
-export const searchMovie = (query) => {
-  return fetch(`https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${query}`);
-};

@@ -1,159 +1,21 @@
 import React, { useState, useEffect } from "react";
 import MovieCard from "../components/MovieCard";
-import { searchMovie } from "../utils/tmdb";
-import { useMutation, useQuery } from "@apollo/client";
-import { useMovieContext } from "../utils/MovieContext";
-import { UPDATE_MOVIE_PREF } from "../utils/actions";
-import { idbPromise, findIndexByAttr } from "../utils/helpers";
-import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from "../utils/mutations";
-import { GET_USER } from "../utils/queries";
-import { dataCleaner } from "../utils/dataCleaner";
 import "../App.css";
 import { Form, Container } from "react-bootstrap";
 
 function Home() {
-  const [state, dispatch] = useMovieContext();
-  const { likedMovies, dislikedMovies } = state;
-  const [results, setResults] = useState(true);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchedMovies, setSearchedMovies] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [addMovie, { addMovieError }] = useMutation(ADD_MOVIE);
-  const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
-  const [likeMovie] = useMutation(LIKE_MOVIE);
-  const { loading, data } = useQuery(GET_USER);
-
-  useEffect(() => {
-    if (!likedMovies.length && !dislikedMovies.length) {
-      if (data && data.me) {
-        if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
-          console.log(
-            "Online, using data from server to update movie preferences"
-          );
-          dispatch({
-            type: UPDATE_MOVIE_PREF,
-            likedMovies: data.me.likedMovies,
-            dislikedMovies: data.me.dislikedMovies,
-          });
-        }
-      } else if (!loading) {
-        idbPromise("likedMovies", "get").then((likedMovies) => {
-          idbPromise("dislikedMovies", "get").then((dislikedMovies) => {
-            if (dislikedMovies.length || likedMovies.length) {
-              console.log(
-                "Offline, using data from idb to update movie preferences"
-              );
-              dispatch({
-                type: UPDATE_MOVIE_PREF,
-                likedMovies,
-                dislikedMovies,
-              });
-            }
-          });
-        });
-      }
-    }
-  }, [data, loading, likedMovies, dislikedMovies, dispatch]);
-
-  const handleDislikeMovie = (dislikedMovie) => {
-    dislikeMovie({
-      variables: { movie_id: dislikedMovie._id },
-    })
-      .then(async ({ data }) => {
-        if (data) {
-          dispatch({
-            type: UPDATE_MOVIE_PREF,
-            likedMovies: data.dislikeMovie.likedMovies,
-            dislikedMovies: data.dislikeMovie.dislikedMovies,
-          });
-          const dislikedMovieIndex = await findIndexByAttr(
-            data.dislikeMovie.dislikedMovies,
-            "_id",
-            dislikedMovie._id
-          );
-          const updatedDislikedMovie =
-            data.dislikeMovie.dislikedMovies[dislikedMovieIndex];
-          idbPromise("likedMovies", "delete", updatedDislikedMovie);
-          idbPromise("dislikedMovies", "put", updatedDislikedMovie);
-        } else {
-          console.error("Couldn't dislike the movie!");
-        }
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const handleLikeMovie = (likedMovie) => {
-    likeMovie({
-      variables: { movie_id: likedMovie._id },
-    })
-      .then(({ data }) => {
-        console.log(data.likeMovie);
-        if (data) {
-          dispatch({
-            type: UPDATE_MOVIE_PREF,
-            likedMovies: data.likeMovie.likedMovies,
-            dislikedMovies: data.likeMovie.dislikedMovies,
-          });
-          const likedMovieIndex = findIndexByAttr(
-            data.likeMovie.likedMovies,
-            "_id",
-            likedMovie._id
-          );
-          const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];
-          idbPromise("likedMovies", "put", updatedLikedMovie);
-          idbPromise("dislikedMovies", "delete", updatedLikedMovie);
-        } else {
-          console.error("Couldn't like the movie!");
-        }
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    setSearchedMovies([]);
-    setSearching(true);
-    if (!searchInput) {
-      return false;
-    }
-    const response = await searchMovie(searchInput);
-    if (!response.ok) {
-      throw new Error("Searching Failed!");
-    }
-    const { results } = await response.json();
-    if (results.length === 0) {
-      setResults(false);
-      setSearching(false);
-      return;
-    }
-
-    const updatedData = await dataCleaner(results);
-    const updatedSearchedMovies = [];
-    for (let i = 0; i < updatedData.length; i++) {
-      const { data } = await addMovie({
-        variables: { input: updatedData[i] },
-      });
-      if (!addMovieError) {
-        updatedSearchedMovies.push(data.addMovie);
-      }
-    }
-    setSearchedMovies(updatedSearchedMovies);
-    setSearching(false);
-    setResults(true);
-  };
-
   return (
     <>
       <section class="page-section" id="services">
         <div class="container">
           <div class="text-center">
-            <h2 class="section-heading text-uppercase">Popcorn & Chill</h2>
+            <h2 class="section-heading text-uppercase">🍿Popcorn & Chill🍿</h2>
             <h3 class="section-subheading text-muted">
               {" "}
               Your #1 Movie Database
             </h3>
           </div>
-          {/* <div class="input-group rounded">
+          <div class="input-group rounded">
             <input
               type="search"
               class="form-control rounded"
@@ -164,52 +26,8 @@ function Home() {
             <span class="input-group-text border-0" id="search-addon">
               <i class="fas fa-search"></i>
             </span>
-          </div> */}
-          <Container>
-            <Form
-              className="input-group rounded"
-              onSubmit={(event) => handleFormSubmit(event, searchInput)}
-            >
-              <Form.Control
-                name="searchInput"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                type="text"
-                placeholder="Enter Movie Name"
-              />
-              <button class="input-group-text border-0" id="search-addon">
-                <i class="fas fa-search"></i>
-              </button>
-            </Form>
-          </Container>
-          <Container>
-            {!searching && !results ? (
-              <h2 className="results-heading">
-                No movies found! Please try another search.
-              </h2>
-            ) : (
-              <div>
-                <h2 className="results-heading">
-                  {searchedMovies.length > 0 &&
-                    `Viewing ${searchedMovies.length} results:`}
-                </h2>
-                <div className="container">
-                  <div className="grid">
-                    {searchedMovies?.map((movie) => {
-                      return (
-                        <MovieCard
-                          key={movie._id}
-                          movie={movie}
-                          likeMovieHandler={handleLikeMovie}
-                          dislikeMovieHandler={handleDislikeMovie}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-          </Container>
+          </div>
+
           <div class="row text-center">
             <div class="col-md-4">
               <span class="fa-stack fa-4x">
@@ -492,3 +310,13 @@ function Home() {
 }
 
 export default Home;
+
+
+
+
+
+
+
+
+
+

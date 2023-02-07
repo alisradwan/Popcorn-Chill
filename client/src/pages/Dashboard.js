@@ -1,29 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+// Components
+import {
+  Form,
+  Button,
+  CardColumns,
+  Container,
+  Jumbotron,
+} from "react-bootstrap";
 import MovieCard from "../components/MovieCard";
-import { Form, Button, Container } from "react-bootstrap";
-import { searchMovie } from "../utils/tmdb";
+import { cleanMovieData } from "../utils/movieData";
+// TMDB API
+import { searchTMDB } from "../utils/API";
+// GraphQL
 import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from "../utils/mutations";
 import { GET_USER } from "../utils/queries";
-import { useMutation, useQuery } from "@apollo/client";
-import { useMovieContext } from "../utils/MovieContext";
-import { UPDATE_MOVIE_PREF } from "../utils/actions";
-import { idbPromise, findIndexByAttr } from "../utils/helpers";
-import { dataCleaner } from "../utils/dataCleaner";
+import { useMutation, useQuery } from "@apollo/react-hooks";
+// Global State
+import { useMovieContext } from "../utils/GlobalState";
+import { UPDATE_MOVIE_PREFERENCES } from "../utils/actions";
+// IndexedDB
+import { idbPromise } from "../utils/helpers";
+import { findIndexByAttr } from "../utils/helpers";
 
-function Dashboard() {
+const SearchMovies = () => {
+  // State
   const [state, dispatch] = useMovieContext();
   const { likedMovies, dislikedMovies } = state;
-  const [results, setResults] = useState(true);
+  const [resultsFound, setResultsFound] = useState(true);
   const [searchInput, setSearchInput] = useState("");
   const [searchedMovies, setSearchedMovies] = useState([]);
   const [searching, setSearching] = useState(false);
-
+  // GraphQL
   const [addMovie, { addMovieError }] = useMutation(ADD_MOVIE);
   const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
   const [likeMovie] = useMutation(LIKE_MOVIE);
   const { loading, data } = useQuery(GET_USER);
 
+  // hook for updating movie preferences
   useEffect(() => {
+    // if we're online, use server to update movie preferences
     if (!likedMovies.length && !dislikedMovies.length) {
       if (data && data.me) {
         if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
@@ -31,12 +46,14 @@ function Dashboard() {
             "Online, using data from server to update movie preferences"
           );
           dispatch({
-            type: UPDATE_MOVIE_PREF,
+            type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.me.likedMovies,
             dislikedMovies: data.me.dislikedMovies,
           });
         }
-      } else if (!loading) {
+      }
+      // if we're offline, use idb to update movie preferences
+      else if (!loading) {
         idbPromise("likedMovies", "get").then((likedMovies) => {
           idbPromise("dislikedMovies", "get").then((dislikedMovies) => {
             if (dislikedMovies.length || likedMovies.length) {
@@ -44,7 +61,7 @@ function Dashboard() {
                 "Offline, using data from idb to update movie preferences"
               );
               dispatch({
-                type: UPDATE_MOVIE_PREF,
+                type: UPDATE_MOVIE_PREFERENCES,
                 likedMovies,
                 dislikedMovies,
               });
@@ -55,24 +72,75 @@ function Dashboard() {
     }
   }, [data, loading, likedMovies, dislikedMovies, dispatch]);
 
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
+    setSearchedMovies([]);
+    setSearching(true);
+
+    if (!searchInput) {
+      return false;
+    }
+
+    const response = await searchTMDB(searchInput);
+
+    if (!response.ok) {
+      throw new Error("Couldn't search for movies");
+    }
+
+    const { results } = await response.json();
+
+    // return early if no results found
+    if (results.length === 0) {
+      setResultsFound(false);
+      setSearching(false);
+      return;
+    }
+
+    const cleanedMovies = await cleanMovieData(results);
+
+    const updatedSearchedMovies = [];
+    for (let i = 0; i < cleanedMovies.length; i++) {
+      // add the movie to the DB
+      const { data } = await addMovie({
+        variables: { input: cleanedMovies[i] },
+      });
+
+      // update searchedMovies state
+      if (!addMovieError) {
+        updatedSearchedMovies.push(data.addMovie);
+      }
+    }
+
+    setSearchedMovies(updatedSearchedMovies);
+    setSearching(false);
+    setResultsFound(true);
+  };
+
   const handleLikeMovie = (likedMovie) => {
+    // update the db
     likeMovie({
-      variables: { movie_id: likedMovie._id },
+      variables: { movieId: likedMovie._id },
     })
       .then(({ data }) => {
         console.log(data.likeMovie);
         if (data) {
+          // update global state
           dispatch({
-            type: UPDATE_MOVIE_PREF,
+            type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.likeMovie.likedMovies,
             dislikedMovies: data.likeMovie.dislikedMovies,
           });
+
+          // find the updated movie
           const likedMovieIndex = findIndexByAttr(
             data.likeMovie.likedMovies,
             "_id",
             likedMovie._id
           );
           const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];
+
+          // update idb
           idbPromise("likedMovies", "put", updatedLikedMovie);
           idbPromise("dislikedMovies", "delete", updatedLikedMovie);
         } else {
@@ -83,16 +151,20 @@ function Dashboard() {
   };
 
   const handleDislikeMovie = (dislikedMovie) => {
+    // update the db
     dislikeMovie({
-      variables: { movie_id: dislikedMovie._id },
+      variables: { movieId: dislikedMovie._id },
     })
       .then(async ({ data }) => {
         if (data) {
+          // update global state
           dispatch({
-            type: UPDATE_MOVIE_PREF,
+            type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.dislikeMovie.likedMovies,
             dislikedMovies: data.dislikeMovie.dislikedMovies,
           });
+
+          // find the updated movie
           const dislikedMovieIndex = await findIndexByAttr(
             data.dislikeMovie.dislikedMovies,
             "_id",
@@ -100,6 +172,8 @@ function Dashboard() {
           );
           const updatedDislikedMovie =
             data.dislikeMovie.dislikedMovies[dislikedMovieIndex];
+
+          // update idb
           idbPromise("likedMovies", "delete", updatedDislikedMovie);
           idbPromise("dislikedMovies", "put", updatedDislikedMovie);
         } else {
@@ -109,88 +183,55 @@ function Dashboard() {
       .catch((err) => console.error(err));
   };
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    setSearchedMovies([]);
-    setSearching(true);
-    if (!searchInput) {
-      return false;
-    }
-    const response = await searchMovie(searchInput);
-    if (!response.ok) {
-      throw new Error("Searching Failed!");
-    }
-    const { results } = await response.json();
-    if (results.length === 0) {
-      setResults(false);
-      setSearching(false);
-      return;
-    }
-
-    const updatedData = await dataCleaner(results);
-    const updatedSearchedMovies = [];
-    for (let i = 0; i < updatedData.length; i++) {
-      const { data } = await addMovie({
-        variables: { input: updatedData[i] },
-      });
-      if (!addMovieError) {
-        updatedSearchedMovies.push(data.addMovie);
-      }
-    }
-    setSearchedMovies(updatedSearchedMovies);
-    setSearching(false);
-    setResults(true);
-  };
-
   return (
     <>
+      <Jumbotron fluid className="text-light bg-dark">
+        <Container>
+          <Form onSubmit={(event) => handleFormSubmit(event, searchInput)}>
+            <Form.Label className="h3">
+              Find your next favorite movies
+            </Form.Label>
+            <Form.Control
+              name="searchInput"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              type="text"
+              placeholder="Enter the movie name!"
+            />
+            <Button type="submit" className="mt-1">
+              Search
+            </Button>
+          </Form>
+        </Container>
+      </Jumbotron>
       <Container>
-        <Form onSubmit={(event) => handleFormSubmit(event, searchInput)}>
-          <Form.Label className="h3">
-            Search Your Next Favorite Movies
-          </Form.Label>
-          <Form.Control
-            name="searchInput"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            type="text"
-            placeholder="Enter Movie Name"
-          />
-          <Button type="submit" className="mt-2">
-            Search
-          </Button>
-        </Form>
-      </Container>
-      <Container>
-        {!searching && !results ? (
+        {!searching && !resultsFound ? (
           <h2 className="results-heading">
             No movies found! Please try another search.
           </h2>
         ) : (
-          <div>
+          <>
             <h2 className="results-heading">
               {searchedMovies.length > 0 &&
                 `Viewing ${searchedMovies.length} results:`}
             </h2>
-            <div className="container">
-              <div className="grid">
-                {searchedMovies?.map((movie) => {
-                  return (
-                    <MovieCard
-                      key={movie._id}
-                      movie={movie}
-                      likeMovieHandler={handleLikeMovie}
-                      dislikeMovieHandler={handleDislikeMovie}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+            <CardColumns>
+              {searchedMovies?.map((movie) => {
+                return (
+                  <MovieCard
+                    key={movie._id}
+                    movie={movie}
+                    likeMovieHandler={handleLikeMovie}
+                    dislikeMovieHandler={handleDislikeMovie}
+                  />
+                );
+              })}
+            </CardColumns>
+          </>
         )}
       </Container>
     </>
   );
-}
+};
 
-export default Dashboard;
+export default SearchMovies;

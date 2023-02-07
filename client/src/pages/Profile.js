@@ -1,21 +1,31 @@
 import React, { useEffect } from "react";
-import { Card, Container } from "react-bootstrap";
-import MovieBox from "../components/MovieBox";
+// Components
+import { Jumbotron, CardColumns, Container } from "react-bootstrap";
+import MovieCard from "../components/MovieCard";
+// GraphQL
 import { DISLIKE_MOVIE, LIKE_MOVIE } from "../utils/mutations";
 import { GET_USER } from "../utils/queries";
-import { useMutation, useQuery } from "@apollo/client";
-import { useMovieContext } from "../utils/MovieContext";
-import { UPDATE_MOVIE_PREF } from "../utils/actions";
-import { idbPromise, findIndexByAttr } from "../utils/helpers";
+import { useMutation, useQuery } from "@apollo/react-hooks";
+// Global State
+import { useMovieContext } from "../utils/GlobalState";
+import { UPDATE_MOVIE_PREFERENCES } from "../utils/actions";
+// IDB
+import { idbPromise } from "../utils/helpers";
+import { findIndexByAttr } from "../utils/helpers";
 
-function Profile() {
+
+
+const SavedMovies = () => {
+  // State
   const [state, dispatch] = useMovieContext();
   const { likedMovies, dislikedMovies } = state;
+  // GraphQL
   const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
   const [likeMovie] = useMutation(LIKE_MOVIE);
   const { loading, data } = useQuery(GET_USER);
 
   useEffect(() => {
+    // if we're online, use server to update movie preferences
     if (!likedMovies.length && !dislikedMovies.length) {
       if (data && data.me) {
         if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
@@ -23,12 +33,14 @@ function Profile() {
             "Online, using data from server to update movie preferences"
           );
           dispatch({
-            type: UPDATE_MOVIE_PREF,
+            type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.me.likedMovies,
             dislikedMovies: data.me.dislikedMovies,
           });
         }
-      } else if (!loading) {
+      }
+      // if we're offline, use idb to update movie preferences
+      else if (!loading) {
         idbPromise("likedMovies", "get").then((likedMovies) => {
           idbPromise("dislikedMovies", "get").then((dislikedMovies) => {
             if (dislikedMovies.length || likedMovies.length) {
@@ -36,7 +48,7 @@ function Profile() {
                 "Offline, using data from idb to update movie preferences"
               );
               dispatch({
-                type: UPDATE_MOVIE_PREF,
+                type: UPDATE_MOVIE_PREFERENCES,
                 likedMovies,
                 dislikedMovies,
               });
@@ -48,23 +60,29 @@ function Profile() {
   }, [data, loading, likedMovies, dislikedMovies, dispatch]);
 
   const handleLikeMovie = (likedMovie) => {
+    // update the db
     likeMovie({
-      variables: { movie_id: likedMovie._id },
+      variables: { movieId: likedMovie._id },
     })
       .then(({ data }) => {
         console.log(data.likeMovie);
         if (data) {
+          // update global state
           dispatch({
-            type: UPDATE_MOVIE_PREF,
+            type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.likeMovie.likedMovies,
             dislikedMovies: data.likeMovie.dislikedMovies,
           });
+
+          // find the updated movie
           const likedMovieIndex = findIndexByAttr(
             data.likeMovie.likedMovies,
             "_id",
             likedMovie._id
           );
           const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];
+
+          // update idb
           idbPromise("likedMovies", "put", updatedLikedMovie);
           idbPromise("dislikedMovies", "delete", updatedLikedMovie);
         } else {
@@ -75,16 +93,20 @@ function Profile() {
   };
 
   const handleDislikeMovie = (dislikedMovie) => {
+    // update the db
     dislikeMovie({
-      variables: { movie_id: dislikedMovie._id },
+      variables: { movieId: dislikedMovie._id },
     })
       .then(async ({ data }) => {
         if (data) {
+          // update global state
           dispatch({
-            type: UPDATE_MOVIE_PREF,
+            type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.dislikeMovie.likedMovies,
             dislikedMovies: data.dislikeMovie.dislikedMovies,
           });
+
+          // find the updated movie
           const dislikedMovieIndex = await findIndexByAttr(
             data.dislikeMovie.dislikedMovies,
             "_id",
@@ -92,6 +114,8 @@ function Profile() {
           );
           const updatedDislikedMovie =
             data.dislikeMovie.dislikedMovies[dislikedMovieIndex];
+
+          // update idb
           idbPromise("likedMovies", "delete", updatedDislikedMovie);
           idbPromise("dislikedMovies", "put", updatedDislikedMovie);
         } else {
@@ -103,31 +127,36 @@ function Profile() {
 
   return (
     <>
+      <Jumbotron fluid className="text-light bg-dark">
+        <Container>
+          <h1>🍿My Movies🍿</h1>
+        </Container>
+      </Jumbotron>
       <Container>
         <h2 className="pb-5">
           {likedMovies.length
-            ? `You have ${likedMovies.length} liked ${
+            ? `${likedMovies.length} saved ${
                 likedMovies.length === 1 ? "movie" : "movies"
               }:`
-            : "You have no liked movies!"}
+            : "You have no saved movies!"}
         </h2>
+        <CardColumns>
+          {likedMovies?.length && likedMovies.length > 0
+            ? likedMovies.map((movie) => {
+                return (
+                  <MovieCard
+                    key={movie._id}
+                    movie={movie}
+                    likeMovieHandler={handleLikeMovie}
+                    dislikeMovieHandler={handleDislikeMovie}
+                  />
+                );
+              })
+            : null}
+        </CardColumns>
       </Container>
-      <Card>
-        {likedMovies?.length && likedMovies.length > 0
-          ? likedMovies.map((movie) => {
-              return (
-                <MovieBox
-                  key={movie._id}
-                  movie={movie}
-                  likeMovieHandler={handleLikeMovie}
-                  dislikeMovieHandler={handleDislikeMovie}
-                />
-              );
-            })
-          : null}
-      </Card>
     </>
   );
-}
+};
 
-export default Profile;
+export default SavedMovies;

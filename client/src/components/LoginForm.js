@@ -1,8 +1,8 @@
 // see SignupForm.js for comments
 import React, { useState } from "react";
+import Auth from "../utils/auth";
 import { Form, Button, Alert } from "react-bootstrap";
 import { LOGIN_USER } from "../utils/mutations";
-import Auth from "../utils/auth";
 import { useMutation } from "@apollo/react-hooks";
 
 const LoginForm = () => {
@@ -13,7 +13,10 @@ const LoginForm = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setUserFormData({ ...userFormData, [name]: value });
+    setUserFormData({
+      ...userFormData,
+      [name]: value,
+    });
   };
 
   const handleFormSubmit = async (event) => {
@@ -27,10 +30,12 @@ const LoginForm = () => {
     }
 
     try {
-      const { data } = await login({ variables: { ...userFormData } });
+      const { data } = await login({
+        variables: { ...userFormData },
+      });
       Auth.login(data.login.token);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       setShowAlert(true);
     }
 
@@ -44,6 +49,14 @@ const LoginForm = () => {
   return (
     <>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+        <Alert
+          dismissible
+          onClose={() => setShowAlert(false)}
+          show={showAlert}
+          variant="danger"
+        >
+          Something went wrong with your login credentials!
+        </Alert>
         <Form.Group>
           <Form.Label htmlFor="email">Email</Form.Label>
           <Form.Control
@@ -62,7 +75,6 @@ const LoginForm = () => {
         <Form.Group>
           <Form.Label htmlFor="password">Password</Form.Label>
           <Form.Control
-            className="pass"
             type="password"
             placeholder="Your password"
             name="password"
@@ -74,23 +86,14 @@ const LoginForm = () => {
             Password is required!
           </Form.Control.Feedback>
         </Form.Group>
-        <Alert
-          dismissible
-          onClose={() => setShowAlert(false)}
-          show={showAlert}
-          variant="danger"
-        >
-          The user name or password is incorrect!
-        </Alert>
-        <br />
         <Button
-          className="btn"
           disabled={!(userFormData.email && userFormData.password)}
           type="submit"
           variant="success"
         >
           Submit
         </Button>
+        {error && <div>Login failed</div>}
       </Form>
     </>
   );
