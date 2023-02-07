@@ -34,6 +34,7 @@ As a user I want to able to access all of my favorite movies and tv-shows in one
 
 ## Heroku
 
+Live Deployed Link: https://popcornchillapp.herokuapp.com/
 
 ## GitHub Repository
 https://github.com/alisradwan/Popcorn-Chill
