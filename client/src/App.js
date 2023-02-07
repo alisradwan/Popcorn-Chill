@@ -19,6 +19,7 @@ import AiringToday from "./pages/TvShows/AiringToday";
 import TopRelatedShow from "./pages/TvShows/TopRelatedShow";
 import OnTV from "./pages/TvShows/OnTV";
 import Footer from "./components/Footer";
+import Contact from "./pages/Contact";
 
 import { MovieProvider } from "./utils/GlobalState";
 
@@ -61,8 +62,9 @@ function App() {
             <Route exact path="/TvShows" component={TvShows} />
             <Route exact path="/PopularMovies" component={Trindingmoves} />
             <Route exact path="/" component={Homepage} />
-            <Route exact path="/dashboard" component={Dashboard} />
-            <Route exact path="/profile" component={Profile} />
+            <Route exact path="/Dashboard" component={Dashboard} />
+            <Route exact path="/Profile" component={Profile} />
+            <Route exact path="/Contact" component={Contact} />
             <Route render={() => <h1 className="display-2">Wrong page!</h1>} />
           </Switch>
           <Footer />

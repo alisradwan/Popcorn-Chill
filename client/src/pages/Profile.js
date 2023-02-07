@@ -20,16 +20,19 @@ const SavedMovies = () => {
     const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
     const [likeMovie] = useMutation(LIKE_MOVIE);
     const { loading, data } = useQuery(GET_USER);
-
+    
     useEffect(() => {        
         if (!likedMovies.length && !dislikedMovies.length) {
+            
             if (data && data.me) {
+                console.log ("****SEE THIS " + data.me.username);
                 if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
-                    console.log("Online")
+                   
                     dispatch({
                         type: UPDATE_MOVIE_PREFERENCES,
                         likedMovies: data.me.likedMovies,
-                        dislikedMovies: data.me.dislikedMovies
+                        dislikedMovies: data.me.dislikedMovies, 
+                        username: data.me.username
                     });
                 }
             }
@@ -37,37 +40,33 @@ const SavedMovies = () => {
                 idbPromise('likedMovies', 'get').then(likedMovies => {
                     idbPromise('dislikedMovies', 'get').then(dislikedMovies => {
                         if (dislikedMovies.length || likedMovies.length) {
-                            console.log("Offline")
                             dispatch({
                                 type: UPDATE_MOVIE_PREFERENCES,
                                 likedMovies,
-                                dislikedMovies
+                                dislikedMovies,
+                                username: data.me.username
                             })
                         }
                     })
                 })
             }
         }
-    }, [data, loading, likedMovies, dislikedMovies, dispatch])
+    }, [data, loading, likedMovies, dislikedMovies, dispatch,])
 
-    const handleLikeMovie = (likedMovie) => {
-        
+    const handleLikeMovie = (likedMovie) => {       
         likeMovie({
             variables: { movieId: likedMovie._id }
         })
         .then(({data}) => {
             console.log(data.likeMovie)
-            if (data) {
-                
+            if (data) {                
                 dispatch({
                     type: UPDATE_MOVIE_PREFERENCES,
                     likedMovies: data.likeMovie.likedMovies,
                     dislikedMovies: data.likeMovie.dislikedMovies
-                });
-                   
+                });                  
                 const likedMovieIndex = findIndexByAttr(data.likeMovie.likedMovies, '_id', likedMovie._id);
-                const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];
-               
+                const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];               
                 idbPromise('likedMovies', 'put', updatedLikedMovie);
                 idbPromise('dislikedMovies', 'delete', updatedLikedMovie);
             } else {
@@ -77,23 +76,19 @@ const SavedMovies = () => {
         .catch(err => console.error(err));
     };
 
-    const handleDislikeMovie = (dislikedMovie) => {
-        
+    const handleDislikeMovie = (dislikedMovie) => {        
         dislikeMovie({
             variables: { movieId: dislikedMovie._id }
         })
         .then(async ({data}) => {
-            if (data) {
-                
+            if (data) {                
                 dispatch({
                     type: UPDATE_MOVIE_PREFERENCES,
                     likedMovies: data.dislikeMovie.likedMovies,
                     dislikedMovies: data.dislikeMovie.dislikedMovies
-                });
-                   
+                });                  
                 const dislikedMovieIndex = await findIndexByAttr(data.dislikeMovie.dislikedMovies, '_id', dislikedMovie._id);
-                const updatedDislikedMovie = data.dislikeMovie.dislikedMovies[dislikedMovieIndex];
-    
+                const updatedDislikedMovie = data.dislikeMovie.dislikedMovies[dislikedMovieIndex];    
                 idbPromise('likedMovies', 'delete', updatedDislikedMovie);
                 idbPromise('dislikedMovies', 'put', updatedDislikedMovie);
             } else {
@@ -106,15 +101,18 @@ const SavedMovies = () => {
     return (
         <>
             <Jumbotron fluid className="bg-dark">
+            { data && data.me ? (        
                 <Container>
-                    <h1>My Movies</h1>
+                    <h1>My Movies {data.me.username}</h1>
                 </Container>
+                ): (null)
+            }
             </Jumbotron>
             <Container>
                 <h2 className="pb-5">
                     {likedMovies.length 
-                    ? `Displaying ${likedMovies.length} saved ${likedMovies.length === 1 ? "movie" : "movies"}:`
-                    : "You have no saved movies!"   
+                    ? `You have ${likedMovies.length} liked ${likedMovies.length === 1 ? "movie" : "movies"}:`
+                    : "You haven't liked any movie!"   
                     }
                     
                 </h2>

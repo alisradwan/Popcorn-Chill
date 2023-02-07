@@ -1,14 +1,10 @@
 import React, { useContext } from 'react';
-
-// import bootstrap-react components
 import { Accordion, AccordionContext, Button, Card, ResponsiveEmbed, Row, Col } from 'react-bootstrap';
 import StarRatings from 'react-star-ratings';
 import { useAccordionToggle } from 'react-bootstrap/AccordionToggle';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/react-hooks';
 import { SINGLE_MOVIE } from '../utils/queries';
-
-// import utils
 import { useMovieContext } from "../utils/GlobalState";
 
 const MovieBox = (props) => {
@@ -20,7 +16,6 @@ const MovieBox = (props) => {
         displaySkip
     } = props;
 
-// comment added
     const { movieId } = useParams();
     const { loading, data } = useQuery(SINGLE_MOVIE, {
         variables: {
@@ -31,7 +26,6 @@ const MovieBox = (props) => {
     if (loading) {
         return <div>Loading...</div>;
     }
-//end comment added
 
     function ContextAwareToggle({ eventKey, callback }) {
         const currentEventKey = useContext(AccordionContext);

@@ -47,7 +47,7 @@ const CommentList = ({ movieId,  comments = [] }) => {
                       </Card.Header>
                     </div>  
                       <Card.Body className="card-body">{comment.body}</Card.Body>
-                    <Button className='btn-block btn-danger' onClick={() => handleDeleteComment(movieId, comment._id)} > X </Button>
+                      <Button className='btn-block btn-danger' onClick={() => handleDeleteComment(movieId, comment._id)} > X </Button>
                   </div>
                 ))}
             </Card>

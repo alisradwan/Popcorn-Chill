@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from 'react';
-// Components
-import { Container, Jumbotron, Form } from 'react-bootstrap';
+import { Container, Form } from 'react-bootstrap';
 import MovieCard from '../components/MovieCard';
 import MovieBox from '../components/MovieBox';
-// TMDB API
 import { getTrendingMovies, searchTMDB } from '../utils/API';
-// GraphQL
 import { ADD_MOVIE, DISLIKE_MOVIE, LIKE_MOVIE } from '../utils/mutations';
 import { GET_USER } from '../utils/queries';
 import { useMutation, useQuery } from '@apollo/react-hooks';
-// Global State
 import { useMovieContext } from "../utils/GlobalState";
 import { ADD_TO_MOVIES, UPDATE_MOVIE_PREFERENCES, UPDATE_MOVIES } from '../utils/actions';
-// IndexedDB
 import { idbPromise } from "../utils/helpers";
 import { cleanMovieData } from '../utils/movieData';
-// Other Utils
 import Auth from '../utils/auth';
 import { findIndexByAttr } from '../utils/helpers'
 
@@ -23,7 +17,6 @@ function Home() {
   const [state, dispatch] = useMovieContext();
     const { movies, likedMovies, dislikedMovies } = state
     const [movieIndex, setMovieIndex] = useState('');
-    // GraphQL
     const [addMovie, { addMovieError }] = useMutation(ADD_MOVIE);
     const [dislikeMovie] = useMutation(DISLIKE_MOVIE);
     const [likeMovie] = useMutation(LIKE_MOVIE);
@@ -37,9 +30,7 @@ function Home() {
     if (!likedMovies.length && !dislikedMovies.length) {
       if (data && data.me) {
         if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
-          console.log(
-            "Online, using data from server to update movie preferences"
-          );
+          console.log("Online!");
           dispatch({
             type: UPDATE_MOVIE_PREFERENCES,
             likedMovies: data.me.likedMovies,
@@ -51,7 +42,7 @@ function Home() {
           idbPromise("dislikedMovies", "get").then((dislikedMovies) => {
             if (dislikedMovies.length || likedMovies.length) {
               console.log(
-                "Offline, using data from idb to update movie preferences"
+                "Offline!"
               );
               dispatch({
                 type: UPDATE_MOVIE_PREFERENCES,
@@ -66,21 +57,17 @@ function Home() {
   }, [data, loading, likedMovies, dislikedMovies, dispatch]);
 
   useEffect(() => {
-    if (movies.length && movieIndex === '') {// show the next movie
-        console.log('There are movies, but no movieIndex. Setting movieIndex')
-        // if they're logged in, set it to the first movie they haven't actioned
+    if (movies.length && movieIndex === '') {
         if (Auth.loggedIn()){
             for (let i=0; i < movies.length; i++) {
                 const isLiked = likedMovies.some(likedMovie => likedMovie._id === movies[i]._id);
                 const isDisliked = dislikedMovies.some(dislikedMovie => dislikedMovie._id === movies[i]._id);
-
                 if (!isLiked && !isDisliked && movies[i].trailer) {
                     setMovieIndex(i);
                     break;
                 }
             }
         }
-        // if they're logged in, set it to the first movie in the deck
         else {
             setMovieIndex(0);
         }
@@ -89,48 +76,36 @@ function Home() {
 
   useEffect(() => {
     if (!movies.length) {
-      // if we're online, ping the API to get our movie preferences
       try {
           console.log("Pinging TMDB API to get trending movies");
           getTrendingMovies('week').then(res => {
               if (res.ok) {
-                  res.json().then(async ({ results }) => {
-                      
+                  res.json().then(async ({ results }) => {                      
                       const cleanedMovieData = await cleanMovieData(results);
                       cleanedMovieData.forEach(async movie => {
-                          // add the movie to the db
                           const result = await addMovie({ variables: { input: movie } })
-
                           if (addMovieError) {
                               throw new Error("Couldn't add movie");
                           }
-
                           const { data: newMovieData } = await result;
                           const { addMovie : newMovie } = await newMovieData;
-
-                          // add the movie to the global store
                           dispatch({
                               type: ADD_TO_MOVIES,
                               movie: newMovie
                           })
-
-                          // add to idb
                           idbPromise('movies', 'put', newMovie);
                       })
                   })
               }
               else {
-                  throw new Error ("Couldn't load trending movies");
+                  throw new Error ("Failed to load top movies");
               }
           })
       }
-      // if we can't load from TMDB, try getting them from idb
       catch {
-          console.log("Couldn't get data from TMDB API. Using IDB to display movies.");
-
+          console.log("Failed to get data from TMDB");
           idbPromise('movies', 'get').then(movies => {
               if (movies.length) {
-                  console.log('Using IDB to get trending movies');
                   dispatch({
                       type: UPDATE_MOVIES,
                       movies
@@ -142,82 +117,62 @@ function Home() {
 }, [movies, data, dispatch, loading, addMovie, addMovieError])
 
 const handleLikeMovie = (likedMovie) => {
-  // update the db
   likeMovie({
       variables: { movieId: likedMovie._id }
   })
   .then(({data}) => {
-      console.log(data.likeMovie)
       if (data) {
-          // update global state
           dispatch({
               type: UPDATE_MOVIE_PREFERENCES,
               likedMovies: data.likeMovie.likedMovies,
               dislikedMovies: data.likeMovie.dislikedMovies
           });
-
-          // find the updated movie
           const likedMovieIndex = findIndexByAttr(data.likeMovie.likedMovies, '_id', likedMovie._id);
           const updatedLikedMovie = data.likeMovie.likedMovies[likedMovieIndex];
-
-          // update idb
           idbPromise('likedMovies', 'put', updatedLikedMovie);
           idbPromise('dislikedMovies', 'delete', updatedLikedMovie);
-
-          // skip to the next movie
           handleSkipMovie();
       } else {
-          console.error("Couldn't like the movie!");
+          console.error("Failed to like this movie!");
       }
   })
   .catch(err => console.error(err));
 };
 
 const handleDislikeMovie = (dislikedMovie) => {
-  // update the db
   dislikeMovie({
       variables: { movieId: dislikedMovie._id }
   })
   .then(async ({data}) => {
       if (data) {
-          // update global state
           dispatch({
               type: UPDATE_MOVIE_PREFERENCES,
               likedMovies: data.dislikeMovie.likedMovies,
               dislikedMovies: data.dislikeMovie.dislikedMovies
           });
-
-          // find the updated movie
           const dislikedMovieIndex = await findIndexByAttr(data.dislikeMovie.dislikedMovies, '_id', dislikedMovie._id);
           const updatedDislikedMovie = data.dislikeMovie.dislikedMovies[dislikedMovieIndex];
-
-          // update idb
           idbPromise('likedMovies', 'delete', updatedDislikedMovie);
           idbPromise('dislikedMovies', 'put', updatedDislikedMovie);
-
-          // skip to the next movie
           handleSkipMovie();
       } else {
-          console.error("Couldn't dislike the movie!");
+          console.error("Failed to dislike this movie!");
       }
     })
     .catch(err => console.error(err));
   };
 
   const handleSkipMovie = async () => {
-    // put the current movie at the end of the array if it's not the only movie
     if (movies.length) {
         for (let i=movieIndex + 1; i < movies.length; i++) {
             const isLiked = likedMovies.some(likedMovie => likedMovie._id === movies[i]._id);
             const isDisliked = dislikedMovies.some(dislikedMovie => dislikedMovie._id === movies[i]._id);
-
             if (!isLiked && !isDisliked && movies[i].trailer) {
                 setMovieIndex(i);
                 break;
             }
         }
     }
-    // if this is the only movie left, set moviesToDisplay to an empty array.
     else {
         setMovieIndex('')
     }
@@ -232,7 +187,7 @@ const handleDislikeMovie = (dislikedMovie) => {
     }
     const response = await searchTMDB(searchInput);
     if (!response.ok) {
-      throw new Error("Searching Failed!");
+      throw new Error("Failed to search for movie");
     }
     const { results } = await response.json();
     if (results.length === 0) {
@@ -353,7 +308,6 @@ const handleDislikeMovie = (dislikedMovie) => {
           </div>
         </div>
       </section>
-
       {/* <!-- Portfolio Grid--> */}    
       <Container>
         <h2 className="section-heading text-uppercase center">Top Trending Movies In the Theater Right Now!</h2>
@@ -489,115 +443,6 @@ const handleDislikeMovie = (dislikedMovie) => {
           </ul>
         </div>
       </section>
-      {/* <!-- Team--> */}
-      <section className="page-section bg-light" id="team">
-        <div className="container">
-          <div className="text-center">
-            <h2 className="section-heading text-uppercase">Our Amazing Team</h2>
-            <h3 className="section-subheading text-muted">
-              Here are the Developers Behind Popcorn & Chill
-            </h3>
-          </div>
-
-          <div className="row">
-            <div className="col-md-3">
-              <div className="team-member">
-                <h4>Selina Su</h4>
-                <p class="text-muted">Full Stack Web Developer</p>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="https://github.com/fuuko08"
-                  aria-label="Parveen Anand Twitter Profile"
-                >
-                  <i className="fab fa-github"></i>
-                </a>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="https://www.linkedin.com/in/selina-su-437501144/"
-                  aria-label="Parveen Anand LinkedIn Profile"
-                >
-                  <i className="fab fa-linkedin-in"></i>
-                </a>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="team-member">
-                <h4>Ali Radwan</h4>
-                <p className="text-muted">insert title</p>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="https://github.com/alisradwan"
-                  aria-label="Diana Petersen Twitter Profile"
-                >
-                  <i className="fab fa-github"></i>
-                </a>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="#!"
-                  aria-label="Diana Petersen LinkedIn Profile"
-                >
-                  <i className="fab fa-linkedin-in"></i>
-                </a>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="team-member">
-                <h4>D'Artagnan Hickey</h4>
-                <p className="text-muted">insert title</p>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="https://github.com/SaintMartyrn"
-                  aria-label="Larry Parker Twitter Profile"
-                >
-                  <i className="fab fa-github"></i>
-                </a>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="#!"
-                  aria-label="Larry Parker LinkedIn Profile"
-                >
-                  <i className="fab fa-linkedin-in"></i>
-                </a>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="team-member">
-                <h4>Aram Ambartsumyan</h4>
-                <p className="text-muted">insert title</p>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="https://github.com/AramA89"
-                  aria-label="Larry Parker Twitter Profile"
-                >
-                  <i className="fab fa-github"></i>
-                </a>
-                <a
-                  className="btn btn-dark btn-social mx-2"
-                  href="#!"
-                  aria-label="Larry Parker LinkedIn Profile"
-                >
-                  <i className="fab fa-linkedin-in"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-lg-8 mx-auto text-center">
-              <p className="large text-muted">
-                {" "}
-                We are a group of fullstack developers from the 2023 UCLA Coding
-                Bootcamp. Front end, back end, we can do it all!
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* <!-- Clients--> */}
-      <div className="py-5">
-        <div className="container"></div>
-      </div>
-      {/* <!-- Contact--> */}
-      {/* <video src={require("../assets/VideoBg.mp4")} autoPlay loop muted></video> */}
     </>
   );
 }

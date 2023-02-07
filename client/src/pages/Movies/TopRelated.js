@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import MovieBox from "../../components/MovieBox";
+import Movies from "../../components/Movies";
 import tmdb from "../../utils/tmdb";
 
 function TopRelated() {
@@ -21,7 +21,7 @@ function TopRelated() {
         <div className="container">
           <div className="grid">
             {movies.map((movieReq) => (
-              <MovieBox key={movieReq.id} {...movieReq} />
+              <Movies key={movieReq.id} {...movieReq} />
             ))}
           </div>
         </div>

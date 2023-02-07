@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import MovieBox from "../../components/MovieBox";
+import Movies from "../../components/Movies";
 import tmdb from "../../utils/tmdb";
 import Auth from "../../utils/auth";
 
@@ -24,7 +24,7 @@ const TvShows = () => {
           <div className="container">
             <div className="grid">
               {movies.map((movieReq) => (
-                <MovieBox key={movieReq.id} {...movieReq} />
+                <Movies key={movieReq.id} {...movieReq} />
               ))}
             </div>
           </div>
