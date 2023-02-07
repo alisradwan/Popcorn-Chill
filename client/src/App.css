@@ -2,6 +2,21 @@
   background-color: white;
 }
 
+div.card {
+  background-image: url("../src/assets/images/popcorn.jpg");
+}
+
+.col-sm-6 {
+  color: #000;
+}
+.btn-link {
+  color: #000;
+}
+
+.comments {
+  background-color: white !important;
+}
+
 .Auth-form-container {
   display: flex;
   justify-content: center;

@@ -33,7 +33,7 @@ const CommentForm = ({ movieId }) => {
     };
 
     return (
-        <>
+        <div className='comments'>
           {Auth.loggedIn() ? (
             <>
             <p
@@ -72,7 +72,7 @@ const CommentForm = ({ movieId }) => {
                 <Link to="/">login/signup</Link>
             </p>
           )}
-        </>
+        </div>
     );
 };
 

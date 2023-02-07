@@ -68,7 +68,7 @@ const MovieBox = (props) => {
                     </ResponsiveEmbed>
                     : (movie.poster && <Card.Img src={movie.poster} alt={`The cover for ${movie.title}`} variant='top' />)
                 }
-                <Card.Body>
+                <Card.Body className='comments'>
                     <Card.Title>
                         {movie.title}
                     </Card.Title>
@@ -94,7 +94,7 @@ const MovieBox = (props) => {
                     </Row>
                 </Card.Body>
                     <Accordion.Collapse eventKey={movie._id}>
-                        <Card.Body>
+                        <Card.Body className='comments'>
                             <Card.Text>Plot Summary</Card.Text>
                             <Card.Text className='small'>{movie.overview}</Card.Text>
                             <Card.Text className='small'>Release Date: {movie.releaseDate}</Card.Text>

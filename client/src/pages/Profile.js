@@ -25,7 +25,6 @@ const SavedMovies = () => {
         if (!likedMovies.length && !dislikedMovies.length) {
             
             if (data && data.me) {
-                console.log ("****SEE THIS " + data.me.username);
                 if (data.me.likedMovies.length || !data.me.dislikedMovies.length) {
                    
                     dispatch({
@@ -100,11 +99,9 @@ const SavedMovies = () => {
 
     return (
         <>
-            <Jumbotron fluid className="bg-dark">
-            { data && data.me ? (        
-                <Container>
-                    <h1>My Movies {data.me.username}</h1>
-                </Container>
+            <Jumbotron className="section-heading fluid text-center">
+            { data && data.me ? (                    
+                    <h1>Hello, {data.me.username}! Welcome to your movies database</h1>               
                 ): (null)
             }
             </Jumbotron>
